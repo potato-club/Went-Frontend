@@ -13,7 +13,7 @@ function App() {
 }
 
 const AppWrapper = styled.div`
-  background-color: #f8f5f2;
+  /* background-color: #f8f5f2; */
   height: 100vh;
 `;
 

@@ -34,13 +34,17 @@ const LoginPageWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
-  height: 100%;
+  width: 380px;
+  height: 100vh;
+  margin: 0 auto;
+  padding: 0 20px;
+  /* justify-content: center; */
+  max-width: 100%; /* 화면 크기가 작을 때 대응 */
 `;
 
 const Title = styled.div`
   margin-top: 80px;
-  font-size: 50px;
+  font-size: 40px;
 `;
 
 const SubTitle = styled.div`
@@ -49,6 +53,7 @@ const SubTitle = styled.div`
 `;
 
 const ChangeComponent = styled.div`
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -57,7 +62,7 @@ const ChangeComponent = styled.div`
 `;
 
 const DescriptionBox = styled.div`
-  width: 400px;
+  width: 100%;
   height: 40px;
   border-bottom: 3px solid #c6c4c2;
   text-align: center;
@@ -65,6 +70,7 @@ const DescriptionBox = styled.div`
   flex-direction: column;
   font-size: 20px;
   padding-bottom: 10px;
+  white-space: pre-wrap;
 `;
 
 const ImageBoxWrapper = styled.div`
