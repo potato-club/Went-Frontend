@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
-const Button = styled.div`
+const Button = styled.button`
+  background-color: transparent;
   width: 400px;
   height: 60px;
   border-radius: 15px;
