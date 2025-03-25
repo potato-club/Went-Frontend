@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import googleImg from '../../asset/googleIcon.png';
 import kakaoImg from '../../asset/kakaoIcon.png';
+import Button from '../../components/Button';
 
 function LoginPage() {
   return (
@@ -24,7 +25,7 @@ function LoginPage() {
         </ImageBoxWrapper>
       </ChangeComponent>
 
-      <MainPageButton>메인 페이지로 이동하기</MainPageButton>
+      <Button>메인 페이지로 이동하기</Button>
     </LoginPageWrapper>
   );
 }
@@ -90,17 +91,5 @@ const ImageBox = styled.div`
 `;
 
 const Img = styled.img``;
-
-const MainPageButton = styled.div`
-  width: 400px;
-  height: 60px;
-  border-radius: 15px;
-  border: 1px solid #d0b9a8;
-  text-align: center;
-  align-content: center;
-  font-size: 20px;
-  margin-bottom: 64px;
-  cursor: pointer;
-`;
 
 export default LoginPage;
