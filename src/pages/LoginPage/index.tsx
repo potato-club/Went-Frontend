@@ -7,10 +7,11 @@ function LoginPage() {
     <LoginPageWrapper>
       <Title>(), 다녀왔습니다.</Title>
 
-      <SubTitle>로그인/회원가입</SubTitle>
-
       <ChangeComponent>
+        <SubTitle>로그인/회원가입</SubTitle>
+
         <DescriptionBox>아래의 로그인 방식으로 함께 하세요.</DescriptionBox>
+
         <ImageBoxWrapper>
           <ImageBox>
             <Img alt='구글 로그인' src={googleImg} />
@@ -49,6 +50,8 @@ const SubTitle = styled.div`
 const ChangeComponent = styled.div`
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   flex-grow: 1;
 `;
 
@@ -66,7 +69,8 @@ const DescriptionBox = styled.div`
 const ImageBoxWrapper = styled.div`
   height: 100%;
   display: flex;
-  justify-content: space-around;
+  gap: 80px;
+  /* justify-content: space-between; */
   align-items: center;
 `;
 
