@@ -1,23 +1,30 @@
 import styled from 'styled-components';
-import LoginPageWrapper from '../../components/LoginPageWrapper';
-import { useNavigate, useParams } from 'react-router-dom';
-import LoginPageStepOne from '../../components/LoginPageStepOne';
-import LoginPageStepTwo from '../../components/LoginPageStepTwo';
+import LoginPageBody from '../LoginPageBody';
+import Button from '../Button';
+import { useNavigate } from 'react-router-dom';
 
-function SignUpPage() {
-  const { step } = useParams();
+function LoginPageStepTwo() {
+  const navigate = useNavigate();
 
+  const nextPage = () => {
+    navigate('/welcome'); // Navigate to the next page
+  };
   return (
-    <LoginPageWrapper>
-      <Title>(), 다녀왔습니다.</Title>
-      <SubTitle>회원가입</SubTitle>
-
-      {step === '1' && <LoginPageStepOne />}
-      {step === '2' && <LoginPageStepTwo />}
-    </LoginPageWrapper>
+    <LoginPageBody>
+      <DescriptionBox>생년월일은 선택적으로 입력해주세요.</DescriptionBox>
+      <InputBox>
+        {/* 추후에 select 방식으로 변경 */}
+        <Input type='text' placeholder='년/연' />
+        <Input type='text' placeholder='월' />
+        <Input type='text' placeholder='일' />
+      </InputBox>
+      <ButtonBox>
+        <Button>취소</Button>
+        <Button onClick={nextPage}>다음</Button>
+      </ButtonBox>
+    </LoginPageBody>
   );
 }
-
 const Title = styled.div`
   margin-top: 80px;
   font-size: 40px;
@@ -54,7 +61,6 @@ const RadioBox = styled.div`
 const InputBox = styled.div`
   width: 100%;
   display: flex;
-  flex-direction: column;
   gap: 10px;
   margin: 5% 0 10% 0;
 `;
@@ -74,4 +80,4 @@ const ButtonBox = styled.div`
   gap: 10px;
 `;
 
-export default SignUpPage;
+export default LoginPageStepTwo;

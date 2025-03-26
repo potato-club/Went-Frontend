@@ -2,13 +2,15 @@ import { Route, Routes } from 'react-router-dom';
 import styled from 'styled-components';
 import SignUpPage from './pages/SignUpPage';
 import LoginPage from './pages/LoginPage';
+import WelcomePage from './pages/WelcomePage';
 
 function App() {
   return (
     <AppWrapper>
       <Routes>
         <Route path='/login' element={<LoginPage />} />
-        <Route path='/signUp' element={<SignUpPage />} />
+        <Route path='/signUp/:step' element={<SignUpPage />} />
+        <Route path='/welcome' element={<WelcomePage />} />
       </Routes>
     </AppWrapper>
   );

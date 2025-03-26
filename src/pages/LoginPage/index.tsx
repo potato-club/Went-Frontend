@@ -3,15 +3,15 @@ import googleImg from '../../asset/googleIcon.png';
 import kakaoImg from '../../asset/kakaoIcon.png';
 import Button from '../../components/Button';
 import LoginPageBody from '../../components/LoginPageBody';
+import LoginPageWrapper from '../../components/LoginPageWrapper';
 
 function LoginPage() {
   return (
     <LoginPageWrapper>
       <Title>(), 다녀왔습니다.</Title>
+      <SubTitle>로그인/회원가입</SubTitle>
 
       <LoginPageBody>
-        <SubTitle>로그인/회원가입</SubTitle>
-
         <DescriptionBox>아래의 로그인 방식으로 함께 하세요.</DescriptionBox>
 
         <ImageBoxWrapper>
@@ -30,18 +30,6 @@ function LoginPage() {
     </LoginPageWrapper>
   );
 }
-
-const LoginPageWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 380px;
-  height: 100vh;
-  margin: 0 auto;
-  padding: 0 20px;
-  /* justify-content: center; */
-  max-width: 100%; /* 화면 크기가 작을 때 대응 */
-`;
 
 const Title = styled.div`
   margin-top: 80px;
