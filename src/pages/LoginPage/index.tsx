@@ -2,13 +2,14 @@ import styled from 'styled-components';
 import googleImg from '../../asset/googleIcon.png';
 import kakaoImg from '../../asset/kakaoIcon.png';
 import Button from '../../components/Button';
+import LoginPageBody from '../../components/LoginPageBody';
 
 function LoginPage() {
   return (
     <LoginPageWrapper>
       <Title>(), 다녀왔습니다.</Title>
 
-      <ChangeComponent>
+      <LoginPageBody>
         <SubTitle>로그인/회원가입</SubTitle>
 
         <DescriptionBox>아래의 로그인 방식으로 함께 하세요.</DescriptionBox>
@@ -23,7 +24,7 @@ function LoginPage() {
             <span>{'카카오\n로그인'}</span>
           </ImageBox>
         </ImageBoxWrapper>
-      </ChangeComponent>
+      </LoginPageBody>
 
       <Button>메인 페이지로 이동하기</Button>
     </LoginPageWrapper>
@@ -48,17 +49,8 @@ const Title = styled.div`
 `;
 
 const SubTitle = styled.div`
-  margin: 65px 2px 100px 4px;
+  margin: 65px 0 100px 0;
   font-size: 35px;
-`;
-
-const ChangeComponent = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  flex-grow: 1;
 `;
 
 const DescriptionBox = styled.div`

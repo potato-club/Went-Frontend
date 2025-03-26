@@ -1,12 +1,14 @@
 import { Route, Routes } from 'react-router-dom';
-import LoginPage from './pages/LoginPage';
 import styled from 'styled-components';
+import SignUpPage from './pages/SignUpPage';
+import LoginPage from './pages/LoginPage';
 
 function App() {
   return (
     <AppWrapper>
       <Routes>
         <Route path='/login' element={<LoginPage />} />
+        <Route path='/signUp' element={<SignUpPage />} />
       </Routes>
     </AppWrapper>
   );
