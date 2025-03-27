@@ -2,6 +2,8 @@ import styled from 'styled-components';
 import LoginPageBody from '../LoginPageBody';
 import Button from '../Button';
 import { useNavigate } from 'react-router-dom';
+import Map from '../Map';
+import LocationFinder from '../LocationFinder';
 
 function LoginPageStepOne() {
   const navigate = useNavigate();
@@ -16,6 +18,8 @@ function LoginPageStepOne() {
       <InputBox>
         <Input type='text' placeholder='닉네임' />
         <Input type='text' placeholder='지역' />
+        {/* <Map /> */}
+        <LocationFinder />
       </InputBox>
 
       <DescriptionBox>1개 이상의 관심사를 선택해주세요.</DescriptionBox>
