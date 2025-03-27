@@ -2,14 +2,23 @@ import styled from 'styled-components';
 import LoginPageBody from '../LoginPageBody';
 import Button from '../Button';
 import { useNavigate } from 'react-router-dom';
-import Map from '../Map';
 import LocationFinder from '../LocationFinder';
+import useGeolocation from '../../hooks/useGeolocation';
+import AddressSearch from '../AddressSearch';
+import { useState } from 'react';
 
 function LoginPageStepOne() {
   const navigate = useNavigate();
+  const [selectedLocation, setSelectedLocation] = useState('');
 
   const nextPage = () => {
     navigate('/signUp/2'); // Navigate to the next page
+  };
+
+  const handleAddressSelect = (address: string) => {
+    console.log('선택된 주소:', address);
+    setSelectedLocation(address);
+    // 선택된 주소 정보를 상태로 저장하거나 다른 처리 수행
   };
   return (
     <LoginPageBody>
@@ -17,9 +26,10 @@ function LoginPageStepOne() {
 
       <InputBox>
         <Input type='text' placeholder='닉네임' />
-        <Input type='text' placeholder='지역' />
+        <Input type='text' placeholder='지역' value={selectedLocation} />
         {/* <Map /> */}
-        <LocationFinder />
+        {/* <LocationFinder /> */}
+        <AddressSearch onAddressSelect={handleAddressSelect} />
       </InputBox>
 
       <DescriptionBox>1개 이상의 관심사를 선택해주세요.</DescriptionBox>

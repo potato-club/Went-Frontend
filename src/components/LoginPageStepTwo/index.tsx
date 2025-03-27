@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import LoginPageBody from '../LoginPageBody';
 import Button from '../Button';
 import { useNavigate } from 'react-router-dom';
+import useGeolocation from '../../hooks/useGeolocation';
 
 function LoginPageStepTwo() {
   const navigate = useNavigate();

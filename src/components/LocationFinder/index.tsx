@@ -39,7 +39,7 @@ const LocationFinder: React.FC = () => {
 
             // 직접 API 호출 방식으로 변경
             fetch(
-              `https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/reverseGeocode?request=coordsToaddr&coords=${longitude},${latitude}&sourcecrs=epsg:4326&output=json&orders=roadaddr`,
+              `/map-reversegeocode/v2/reverseGeocode?request=coordsToaddr&coords=${longitude},${latitude}&sourcecrs=epsg:4326&output=json&orders=roadaddr`,
               {
                 method: 'GET',
                 headers: {
@@ -52,7 +52,17 @@ const LocationFinder: React.FC = () => {
             )
               .then((response) => {
                 console.log('API Response Status:', response.status);
-                return response.json();
+                // 응답 텍스트 먼저 확인
+                return response.text().then((text) => {
+                  console.log('Response Text:', text); // 처음 200자만 로그
+                  try {
+                    return JSON.parse(text); // 텍스트를 JSON으로 변환
+                  } catch (e) {
+                    throw new Error(
+                      `Invalid JSON: ${text.substring(0, 100)}...`
+                    );
+                  }
+                });
               })
               .then((data: GeocodingResponse) => {
                 console.log('Geocode Response:', data);
