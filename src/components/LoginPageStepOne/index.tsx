@@ -5,49 +5,121 @@ import { useNavigate } from 'react-router-dom';
 import LocationFinder from '../LocationFinder';
 import useGeolocation from '../../hooks/useGeolocation';
 import AddressSearch from '../AddressSearch';
-import { useState } from 'react';
+import { useState, Dispatch, SetStateAction, useEffect } from 'react';
 
-function LoginPageStepOne() {
+function LoginPageStepOne({
+  setNickname,
+  setSelectedLocation,
+  setSelectedInterests,
+  selectedInterests,
+  selectedLocation,
+}: {
+  setNickname: Dispatch<SetStateAction<string>>;
+  setSelectedLocation: Dispatch<SetStateAction<string>>;
+  setSelectedInterests: Dispatch<SetStateAction<string[]>>;
+  selectedInterests: string[];
+  selectedLocation: string;
+}) {
   const navigate = useNavigate();
-  const [selectedLocation, setSelectedLocation] = useState('');
 
   const nextPage = () => {
     navigate('/signUp/2'); // Navigate to the next page
   };
 
-  const handleAddressSelect = (address: string) => {
+  const handleAddress = (address: string) => {
     console.log('선택된 주소:', address);
     setSelectedLocation(address);
-    // 선택된 주소 정보를 상태로 저장하거나 다른 처리 수행
   };
+
+  const handleNicknameChange = (e: { target: { value: any } }) => {
+    console.log(e.target.value);
+    setNickname(e.target.value);
+  };
+
+  const handleInterestChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value, checked } = e.target;
+    console.log('value ', value);
+    if (checked) {
+      setSelectedInterests((prev: any) => [...prev, value]); // Add interest
+    } else {
+      setSelectedInterests((prev: any[]) =>
+        prev.filter((interest: string) => interest !== value)
+      ); // Remove interest
+    }
+  };
+
+  useEffect(() => {
+    console.log('EFFECT Selected Interests:', selectedInterests);
+  }, [selectedInterests]);
+
   return (
     <LoginPageBody>
       <DescriptionBox>아래의 2개는 필수로 입력해주세요.</DescriptionBox>
 
       <InputBox>
-        <Input type='text' placeholder='닉네임' />
-        <Input type='text' placeholder='지역' value={selectedLocation} />
-        {/* <Map /> */}
-        {/* <LocationFinder /> */}
-        <AddressSearch onAddressSelect={handleAddressSelect} />
+        <Input
+          type='text'
+          placeholder='닉네임'
+          onChange={handleNicknameChange}
+        />
+        {selectedLocation ? (
+          <Input type='text' placeholder='지역' value={selectedLocation} />
+        ) : (
+          <AddressSearch onAddressSelect={handleAddress} />
+        )}
       </InputBox>
 
       <DescriptionBox>1개 이상의 관심사를 선택해주세요.</DescriptionBox>
 
       <RadioBox>
         <div>
-          <input type='radio' name='intertest' value='movie' />
-          <span>영화</span>
-          <input type='radio' name='intertest' value='location' />
-          <span>장소</span>
-          <input type='radio' name='intertest' value='book' />
-          <span>책</span>
+          <label>
+            <input
+              type='checkbox'
+              name='interest'
+              value='movie'
+              onChange={handleInterestChange}
+            />
+            <span>영화</span>
+          </label>
+          <label>
+            <input
+              type='checkbox'
+              name='interest'
+              value='location'
+              onChange={handleInterestChange}
+            />
+            <span>장소</span>
+          </label>
+          <label>
+            <input
+              type='checkbox'
+              name='interest'
+              value='book'
+              onChange={handleInterestChange}
+            />
+            <span>책</span>
+          </label>
         </div>
         <div>
-          <input type='radio' name='intertest' value='music' />
-          <span>음악</span>
-          <input type='radio' name='intertest' value='performance' />
-          <span>공연</span>
+          <label>
+            <input
+              type='checkbox'
+              name='interest'
+              value='music'
+              onChange={handleInterestChange}
+            />
+            <span>음악</span>
+          </label>
+          <label>
+            <input
+              type='checkbox'
+              name='interest'
+              value='performance'
+              onChange={handleInterestChange}
+            />
+            <span>공연</span>
+          </label>
         </div>
       </RadioBox>
       <ButtonBox>
@@ -57,6 +129,7 @@ function LoginPageStepOne() {
     </LoginPageBody>
   );
 }
+
 const Title = styled.div`
   margin-top: 80px;
   font-size: 40px;
@@ -87,7 +160,6 @@ const RadioBox = styled.div`
   flex-direction: column;
   justify-content: center;
   gap: 20%;
-  /* padding: 10px 0; */
 `;
 
 const InputBox = styled.div`

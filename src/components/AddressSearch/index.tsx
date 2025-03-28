@@ -134,7 +134,7 @@ const AddressSearch: React.FC<AddressSearchProps> = ({ onAddressSelect }) => {
           type='text'
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
-          placeholder='주소를 입력하세요 (예: 경기도 군포시 오금로)'
+          placeholder='도로명 주소 ex) 오금로 16'
           onKeyPress={(e) => e.key === 'Enter' && searchAddress()}
         />
         <SearchButton onClick={searchAddress}>검색</SearchButton>
@@ -168,29 +168,28 @@ const Container = styled.div`
   width: 100%;
   max-width: 600px;
   margin: 0 auto;
+  border: 2px solid #c6c4c2;
 `;
 
 const SearchBar = styled.div`
   display: flex;
-  margin-bottom: 16px;
+  /* margin-bottom: 16px; */
+  height: 60px;
 `;
 
 const Input = styled.input`
   flex: 1;
   padding: 10px 16px;
   border: 1px solid #ddd;
-  border-radius: 4px 0 0 4px;
   font-size: 16px;
 `;
 
 const SearchButton = styled.button`
-  padding: 10px 16px;
-  background-color: #03c75a;
-  color: white;
+  padding: 10px 20px;
+  background-color: #d0b9a8;
+  color: #2d2d2d;
   border: none;
-  border-radius: 0 4px 4px 0;
   cursor: pointer;
-  font-weight: bold;
 
   &:hover {
     background-color: #02b350;
