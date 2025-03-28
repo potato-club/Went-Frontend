@@ -2,8 +2,6 @@ import styled from 'styled-components';
 import LoginPageBody from '../LoginPageBody';
 import Button from '../Button';
 import { useNavigate } from 'react-router-dom';
-import LocationFinder from '../LocationFinder';
-import useGeolocation from '../../hooks/useGeolocation';
 import AddressSearch from '../AddressSearch';
 import { useState, Dispatch, SetStateAction, useEffect } from 'react';
 
