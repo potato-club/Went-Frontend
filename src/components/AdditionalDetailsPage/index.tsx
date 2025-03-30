@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { InputBox, SelectBox, ButtonBox } from '../../styles/FormStyles';
 import { DescriptionBox, SubTitle } from '../../styles/LayoutStyles';
+import { registerUser, updateUser } from '../../api/user';
 
 function AdditionalDetailsPage() {
   const navigate = useNavigate();
@@ -50,27 +51,16 @@ function AdditionalDetailsPage() {
   };
 
   const handleSubmit = async () => {
-    const payload = {
-      ...signUpData,
-      categoryIds: signUpData.categoryIds.map((id) => Number(id)), // string[] → number[]
-    };
-
-    console.log('✅ 최종 전송 payload:', payload);
-
     try {
-      const res = await fetch('/api/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+      const res = await updateUser(signUpData);
 
-      if (res.ok) {
+      if (res.status === 200 || res.status === 201) {
         navigate('/welcome');
       } else {
         alert('회원가입 실패');
       }
-    } catch (error) {
-      console.error('회원가입 중 오류 발생:', error);
+    } catch (err) {
+      console.error('회원가입 중 오류:', err);
       alert('서버 오류 발생');
     }
   };

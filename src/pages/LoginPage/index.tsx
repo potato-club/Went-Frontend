@@ -14,49 +14,82 @@ import {
   ChangedComponent,
 } from '../../styles/LayoutStyles';
 import { ButtonBox } from '../../styles/FormStyles';
+import axios from 'axios';
+import { findUser, registerUser } from '../../api/user'; // ✅ registerUser 추가
 
 function LoginPage() {
   const { step } = useParams();
-
   const navigate = useNavigate();
-
   const { signUpData, setSignUpData, cleanedSignUpData } = useAuth();
 
   const login = useGoogleLogin({
-    flow: 'implicit', // 또는 'auth-code'로 설정 가능
+    flow: 'implicit',
     onSuccess: async (tokenResponse) => {
       const { access_token } = tokenResponse;
 
-      // 구글 유저 정보 요청
-      const userInfoRes = await fetch(
-        'https://www.googleapis.com/oauth2/v3/userinfo',
-        {
-          headers: {
-            Authorization: `Bearer ${access_token}`,
-          },
+      try {
+        const userInfoRes = await axios.get(
+          'https://www.googleapis.com/oauth2/v3/userinfo',
+          {
+            headers: {
+              Authorization: `Bearer ${access_token}`,
+            },
+          }
+        );
+
+        const userInfo = userInfoRes.data;
+
+        const newUserData = {
+          socialKey: userInfo.sub?.trim() || '',
+          email: userInfo.email?.trim() || '',
+        };
+
+        setSignUpData((prev) => ({
+          ...prev,
+          ...newUserData,
+        }));
+
+        try {
+          const res = await findUser(newUserData);
+          console.log('✅ 사용자 존재함:', res);
+          // ✅ 누락된 정보가 있는 경우 → 추가 입력 페이지로 이동
+          const hasMissingFields =
+            !res.nickname ||
+            !res.region ||
+            !res.birthdate ||
+            !res.categoryIds?.length;
+
+          if (hasMissingFields) {
+            console.log('❗ 누락된 정보 있음 → 회원가입 페이지로 이동');
+            // setSignUpData((prev) => ({
+            //   ...prev,
+            //   ...res,
+            //   categoryIds: (res.categoryIds ?? []).map(String), // string[]로 통일
+            // }));
+            navigate('/signUp/1');
+          } else {
+            // ✅ 모든 정보가 있다면 → 메인 페이지로 이동
+            navigate('/');
+          }
+        } catch (err: any) {
+          // ✅ 404인 경우 → 회원가입 시도
+          if (axios.isAxiosError(err) && err.response?.status === 404) {
+            console.log('❗ 사용자 없음 → 자동 회원가입 시도');
+
+            await registerUser({
+              ...newUserData,
+            });
+
+            navigate('/signUp/1'); // 추가 정보 입력 페이지로 이동
+          } else {
+            console.error('❌ API Error:', err.response || err.message);
+            alert('로그인 중 오류가 발생했습니다.');
+          }
         }
-      );
-
-      const userInfo = await userInfoRes.json();
-      console.log('구글 유저 정보:', userInfo);
-
-      setSignUpData((prev) => ({
-        ...prev,
-        socialKey: userInfo.sub,
-        email: userInfo.email,
-      }));
-
-      // // 백엔드 유저 확인
-      // const res = await fetch('/api/auth/check', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ socialKey: userInfo.sub }),
-      // });
-
-      // const { exists } = await res.json();
-      console.log('loginPage signUpData : ', signUpData);
-      console.log('loginPage cleanedSignUpData : ', cleanedSignUpData);
-      navigate(false ? '/' : '/signUp/1');
+      } catch (err) {
+        console.error('❌ 구글 로그인 오류:', err);
+        alert('구글 로그인 중 오류가 발생했습니다.');
+      }
     },
     onError: () => console.log('구글 로그인 실패'),
   });
@@ -64,7 +97,6 @@ function LoginPage() {
   return (
     <LoginPageWrapper>
       <Title>(), 다녀왔습니다.</Title>
-
       <LoginPageBody>
         <SubTitle>로그인/회원가입</SubTitle>
         <ChangedComponent>
@@ -96,18 +128,15 @@ const ImageBoxWrapper = styled.div`
   gap: 80px;
   justify-content: center;
   align-items: center;
-  /* padding: 20px 0; */
   padding-top: 20px;
 `;
 
 const ImageBox = styled.div`
   width: 80px;
   white-space: pre-wrap;
-
   display: flex;
   flex-direction: column;
   gap: 15px;
-
   cursor: pointer;
 
   span {

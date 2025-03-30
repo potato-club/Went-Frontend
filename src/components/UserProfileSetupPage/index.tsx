@@ -19,11 +19,11 @@ import {
 
 function UserProfileSetupPage() {
   const categories = [
-    { categoryId: 1, name: 'book', koName: '' },
-    { categoryId: 2, name: 'game', koName: '' },
-    { categoryId: 3, name: 'music', koName: '' },
-    { categoryId: 4, name: 'performance', koName: '' },
-    { categoryId: 5, name: 'movie', koName: '' },
+    { categoryId: '1', name: 'book', koName: '' },
+    { categoryId: '2', name: 'game', koName: '' },
+    { categoryId: '3', name: 'music', koName: '' },
+    { categoryId: '4', name: 'performance', koName: '' },
+    { categoryId: '5', name: 'movie', koName: '' },
   ];
 
   const navigate = useNavigate();
@@ -98,9 +98,9 @@ function UserProfileSetupPage() {
                 <input
                   type='checkbox'
                   name='categories'
-                  value={category.name}
+                  value={category.categoryId}
                   onChange={handleInterestChange}
-                  checked={signUpData.categoryIds.includes(category.name)}
+                  checked={signUpData.categoryIds.includes(category.categoryId)}
                 />
                 <span>{category.name}</span>
               </label>
