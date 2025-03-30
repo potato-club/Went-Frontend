@@ -2,14 +2,14 @@ import { Route, Routes } from 'react-router-dom';
 import styled from 'styled-components';
 import LoginPage from './pages/LoginPage';
 import WelcomePage from './pages/WelcomePage';
-import SignupPage from './pages/SignupPage';
+import SignUpPage from './pages/SignUpPage';
 
 function App() {
   return (
     <AppWrapper>
       <Routes>
         <Route path='/login' element={<LoginPage />} />
-        <Route path='/signUp/:step' element={<SignupPage />} />
+        <Route path='/signUp/:step' element={<SignUpPage />} />
         <Route path='/welcome' element={<WelcomePage />} />
       </Routes>
     </AppWrapper>

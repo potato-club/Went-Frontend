@@ -1,50 +1,36 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 
-interface SignUpData {
-  token: string;
+export interface SignUpData {
+  socialKey: string;
   nickname: string;
-  location: string;
-  interests: string[];
-  birthdate?: {
-    year: string;
-    month: string;
-    day: string;
-  };
+  email: string;
+  birthdate?: string;
+  region: string;
+  categoryIds: string[];
 }
 
 interface AuthContextType {
-  token: string;
-  setToken: (token: string) => void;
-  signUpData: Omit<SignUpData, 'token'>;
-  setSignUpData: (data: Omit<SignUpData, 'token'>) => void;
-  birthdate: { year: string; month: string; day: string };
-  setBirthdate: (date: { year: string; month: string; day: string }) => void;
+  signUpData: SignUpData;
+  setSignUpData: React.Dispatch<React.SetStateAction<SignUpData>>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [token, setToken] = useState('');
-  const [signUpData, setSignUpData] = useState<Omit<SignUpData, 'token'>>({
+  const [signUpData, setSignUpData] = useState<SignUpData>({
+    socialKey: '',
     nickname: '',
-    location: '',
-    interests: [],
-  });
-  const [birthdate, setBirthdate] = useState({
-    year: '0',
-    month: '0',
-    day: '0',
+    email: '',
+    birthdate: '',
+    region: '',
+    categoryIds: [] as string[],
   });
 
   return (
     <AuthContext.Provider
       value={{
-        token,
-        setToken,
         signUpData,
         setSignUpData,
-        setBirthdate,
-        birthdate,
       }}
     >
       {children}

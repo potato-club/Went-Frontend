@@ -7,64 +7,64 @@ import { useAuth } from '../../contexts/AuthContext';
 
 function LoginPageStepTwo() {
   const navigate = useNavigate();
+  const { signUpData, setSignUpData } = useAuth();
 
-  const { token, signUpData, setBirthdate, birthdate } = useAuth();
+  // 생년월일 local state
+  const [year, setYear] = useState('0');
+  const [month, setMonth] = useState('0');
+  const [day, setDay] = useState('0');
 
-  // // 생년월일을 위한 3개의 독립적인 useState
-  // const [year, setYear] = useState<string>('0');
-  // const [month, setMonth] = useState<string>('0');
-  // const [day, setDay] = useState<string>('0');
+  useEffect(() => {
+    if (year !== '0' && month !== '0' && day !== '0') {
+      const birthdate = `${year}-${month.padStart(2, '0')}-${day.padStart(
+        2,
+        '0'
+      )}`;
+      setSignUpData((prev) => ({
+        ...prev,
+        birthdate,
+      }));
+    }
+  }, [year, month, day, setSignUpData]);
 
-  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setBirthdate({
-      ...birthdate,
-      year: e.target.value,
-    });
-  };
-
-  const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setBirthdate({
-      ...birthdate,
-      month: e.target.value,
-    });
-  };
-
-  const handleDayChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setBirthdate({
-      ...birthdate,
-      day: e.target.value,
-    });
+  const handleBirthChange = () => {
+    if (year !== '0' && month !== '0' && day !== '0') {
+      const birthdate = `${year}-${month.padStart(2, '0')}-${day.padStart(
+        2,
+        '0'
+      )}`;
+      setSignUpData((prev) => ({
+        ...prev,
+        birthdate,
+      }));
+    }
   };
 
   const handleSubmit = async () => {
-    console.log('signUpData', signUpData);
-    console.log('birthdate', birthdate);
+    const payload = {
+      ...signUpData,
+      categoryIds: signUpData.categoryIds.map((id) => Number(id)), // string[] → number[]
+    };
 
-    // const payload = {
-    //   token,
-    //   ...signUpData,
-    // };
+    console.log('✅ 최종 전송 payload:', payload);
 
-    // await fetch('/api/signup', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(payload),
-    // });
+    try {
+      const res = await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
 
-    // 회원가입 완료 후 라우팅
+      if (res.ok) {
+        navigate('/welcome');
+      } else {
+        alert('회원가입 실패');
+      }
+    } catch (error) {
+      console.error('회원가입 중 오류 발생:', error);
+      alert('서버 오류 발생');
+    }
   };
-
-  const nextPage = () => {
-    // 다음 페이지로 이동하기 전에 저장된 생년월일 확인 (디버깅용)
-    // console.log('생년월일:', { 년도: year, 월: month, 일: day });
-    navigate('/welcome'); // Navigate to the next page
-  };
-
-  // useEffect(() => {
-  //   console.log('year :', year);
-  //   console.log('month :', month);
-  //   console.log('day :', day);
-  // }, [year, month, day]);
 
   return (
     <LoginPageBody>
@@ -74,19 +74,19 @@ function LoginPageStepTwo() {
         {/* <Input type='text' placeholder='년/연' /> */}
         {/* <Input type='text' placeholder='월' /> */}
         {/* <Input type='text' placeholder='일' /> */}
-        <SelectBox onChange={handleYearChange}>
+        <SelectBox value={year} onChange={(e) => setYear(e.target.value)}>
           <option value='0'>년도</option>
           <option value='1990'>1990년</option>
           <option value='1991'>1991년</option>
           <option value='1992'>1992년</option>
         </SelectBox>
-        <SelectBox onChange={handleMonthChange}>
+        <SelectBox value={month} onChange={(e) => setMonth(e.target.value)}>
           <option value='0'>월</option>
           <option value='1'>1월</option>
           <option value='2'>2월</option>
           <option value='3'>3월</option>
         </SelectBox>
-        <SelectBox onChange={handleDayChange}>
+        <SelectBox value={day} onChange={(e) => setDay(e.target.value)}>
           <option value='0'>일</option>
           <option value='1'>1일</option>
           <option value='2'>2일</option>

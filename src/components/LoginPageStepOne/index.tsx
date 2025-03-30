@@ -4,61 +4,69 @@ import Button from '../Button';
 import { useNavigate } from 'react-router-dom';
 import AddressSearch from '../AddressSearch';
 import { useState, Dispatch, SetStateAction, useEffect } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth, SignUpData } from '../../contexts/AuthContext';
 
-function LoginPageStepOne({
-  nickname,
-  setNickname,
-  setSelectedLocation,
-  setSelectedInterests,
-  selectedInterests,
-  selectedLocation,
-}: {
-  nickname: string;
-  setNickname: Dispatch<SetStateAction<string>>;
-  setSelectedLocation: Dispatch<SetStateAction<string>>;
-  setSelectedInterests: Dispatch<SetStateAction<string[]>>;
-  selectedInterests: string[];
-  selectedLocation: string;
-}) {
+function LoginPageStepOne() {
   const navigate = useNavigate();
 
   const { setSignUpData } = useAuth();
 
   const nextPage = () => {
-    setSignUpData({
-      nickname,
-      location: selectedLocation,
-      interests: selectedInterests,
-    });
+    // setSignUpData({});
     navigate('/signUp/2');
   };
 
   const handleAddress = (address: string) => {
     console.log('선택된 주소:', address);
-    setSelectedLocation(address);
+    setSignUpData((prev: SignUpData) => ({
+      ...prev,
+      region: address,
+    }));
+    // setSelectedLocation(address);
+  };
+
+  const handleAddressChange = (e: { target: { value: any } }) => {
+    console.log(e.target.value);
+    setSignUpData((prev: SignUpData) => ({
+      ...prev,
+      region: e.target.value,
+    }));
   };
 
   const handleNicknameChange = (e: { target: { value: any } }) => {
     console.log(e.target.value);
-    setNickname(e.target.value);
+    // setNickname(e.target.value);
+    setSignUpData((prev: SignUpData) => ({
+      ...prev,
+      nickname: e.target.value,
+    }));
   };
 
   const handleInterestChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = e.target;
     console.log('value ', value);
     if (checked) {
-      setSelectedInterests((prev: any) => [...prev, value]); // Add interest
+      // setSelectedInterests((prev: any) => [...prev, value]); // Add interest
+      setSignUpData((prev: SignUpData) => ({
+        ...prev,
+        categoryIds: [...prev.categoryIds, value],
+      }));
     } else {
-      setSelectedInterests((prev: any[]) =>
-        prev.filter((interest: string) => interest !== value)
-      ); // Remove interest
+      // setSelectedInterests((prev: any[]) =>
+      //   prev.filter((interest: string) => interest !== value)
+      // ); // Remove interest
+      setSignUpData((prev: SignUpData) => ({
+        ...prev,
+        categoryIds: prev.categoryIds.filter(
+          (interest: string) => interest !== value
+        ),
+      }));
     }
   };
 
-  useEffect(() => {
-    console.log('EFFECT Selected Interests:', selectedInterests);
-  }, [selectedInterests]);
+  // useEffect(() => {
+  //   console.log('EFFECT Selected Interests:', selectedInterests);
+  // }, [selectedInterests]);
 
   return (
     <LoginPageBody>
@@ -70,8 +78,12 @@ function LoginPageStepOne({
           placeholder='닉네임'
           onChange={handleNicknameChange}
         />
-        {selectedLocation ? (
-          <Input type='text' placeholder='지역' value={selectedLocation} />
+        {false ? (
+          <Input
+            type='text'
+            placeholder='지역'
+            onChange={handleAddressChange}
+          />
         ) : (
           <AddressSearch onAddressSelect={handleAddress} />
         )}

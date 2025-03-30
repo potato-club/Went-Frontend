@@ -5,16 +5,28 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
+
+const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_OAUTH_CLIENT_ID;
+
+if (!GOOGLE_CLIENT_ID) {
+  throw new Error(
+    'REACT_APP_GOOGLE_OAUTH_CLIENT_ID is not defined in the environment variables'
+  );
+}
+
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
+      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </GoogleOAuthProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

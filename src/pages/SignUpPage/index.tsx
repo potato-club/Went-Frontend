@@ -5,37 +5,20 @@ import { useState, Dispatch, SetStateAction } from 'react';
 import LoginPageStepTwo from '../../components/LoginPageStepTwo';
 import LoginPageStepOne from '../../components/LoginPageStepOne';
 
-function SignupPage({
-  setNickname,
-  setSelectedLocation,
-  setSelectedInterests,
-}: {
-  setNickname: Dispatch<SetStateAction<string>>;
-  setSelectedLocation: Dispatch<SetStateAction<string>>;
-  setSelectedInterests: Dispatch<SetStateAction<string[]>>;
-}) {}
+function SignupPage() {}
 
 function SignUpPage() {
   const { step } = useParams();
-  const [nickname, setNickname] = useState('');
-  const [selectedLocation, setSelectedLocation] = useState('');
-  const [selectedInterests, setSelectedInterests] = useState<string[]>([]); // State for selected interests
+  // const [nickname, setNickname] = useState('');
+  // const [selectedLocation, setSelectedLocation] = useState('');
+  // const [selectedInterests, setSelectedInterests] = useState<string[]>([]); // State for selected interests
 
   return (
     <LoginPageWrapper>
       <Title>(), 다녀왔습니다.</Title>
       <SubTitle>회원가입</SubTitle>
 
-      {step === '1' && (
-        <LoginPageStepOne
-          nickname={nickname}
-          setNickname={setNickname}
-          setSelectedLocation={setSelectedLocation}
-          setSelectedInterests={setSelectedInterests}
-          selectedInterests={selectedInterests}
-          selectedLocation={selectedLocation}
-        />
-      )}
+      {step === '1' && <LoginPageStepOne />}
       {step === '2' && <LoginPageStepTwo />}
     </LoginPageWrapper>
   );
