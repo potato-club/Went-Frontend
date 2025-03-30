@@ -4,8 +4,28 @@ import kakaoImg from '../../asset/kakaoIcon.png';
 import Button from '../../components/Button';
 import LoginPageBody from '../../components/LoginPageBody';
 import LoginPageWrapper from '../../components/LoginPageWrapper';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 function LoginPage() {
+  const navigate = useNavigate();
+
+  const { setToken } = useAuth();
+
+  const nextPage = () => {
+    navigate('/signUp/1'); // Navigate to the next page
+  };
+
+  // const handleGoogleLogin = async () => {
+  //   const token = await getGoogleToken(); // 실제 구현 필요
+  //   setToken(token);
+
+  //   // 백엔드에서 유저 존재 확인
+  //   const userExists = await checkUserExists(token); // 실제 구현 필요
+  //   if (!userExists) navigate('/signUp/1');
+  //   else navigate('/'); // 메인페이지 등
+  // };
+
   return (
     <LoginPageWrapper>
       <Title>(), 다녀왔습니다.</Title>
@@ -16,7 +36,7 @@ function LoginPage() {
 
         <ImageBoxWrapper>
           <ImageBox>
-            <Img alt='구글 로그인' src={googleImg} />
+            <Img alt='구글 로그인' src={googleImg} onClick={nextPage} />
             <span>{'구글\n로그인'}</span>
           </ImageBox>
           <ImageBox>

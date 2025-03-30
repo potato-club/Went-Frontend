@@ -28,6 +28,7 @@ function SignUpPage() {
 
       {step === '1' && (
         <LoginPageStepOne
+          nickname={nickname}
           setNickname={setNickname}
           setSelectedLocation={setSelectedLocation}
           setSelectedInterests={setSelectedInterests}

@@ -4,14 +4,17 @@ import Button from '../Button';
 import { useNavigate } from 'react-router-dom';
 import AddressSearch from '../AddressSearch';
 import { useState, Dispatch, SetStateAction, useEffect } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
 
 function LoginPageStepOne({
+  nickname,
   setNickname,
   setSelectedLocation,
   setSelectedInterests,
   selectedInterests,
   selectedLocation,
 }: {
+  nickname: string;
   setNickname: Dispatch<SetStateAction<string>>;
   setSelectedLocation: Dispatch<SetStateAction<string>>;
   setSelectedInterests: Dispatch<SetStateAction<string[]>>;
@@ -20,8 +23,15 @@ function LoginPageStepOne({
 }) {
   const navigate = useNavigate();
 
+  const { setSignUpData } = useAuth();
+
   const nextPage = () => {
-    navigate('/signUp/2'); // Navigate to the next page
+    setSignUpData({
+      nickname,
+      location: selectedLocation,
+      interests: selectedInterests,
+    });
+    navigate('/signUp/2');
   };
 
   const handleAddress = (address: string) => {
