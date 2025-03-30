@@ -11,7 +11,7 @@ const Button = styled.button`
   text-align: center;
   align-content: center;
   font-size: 20px;
-  margin-bottom: 10%;
+  /* margin-bottom: 10%; */
   cursor: pointer;
 `;
 

@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
+import { cleanSignUpData } from '../utils/cleanSignUpData';
 
 export interface SignUpData {
   socialKey: string;
@@ -11,6 +12,7 @@ export interface SignUpData {
 
 interface AuthContextType {
   signUpData: SignUpData;
+  cleanedSignUpData: Partial<SignUpData>; // ✅ 추가됨
   setSignUpData: React.Dispatch<React.SetStateAction<SignUpData>>;
 }
 
@@ -26,11 +28,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     categoryIds: [] as string[],
   });
 
+  const cleanedSignUpData = cleanSignUpData(signUpData); // ✅ 바로 가공
+
   return (
     <AuthContext.Provider
       value={{
         signUpData,
         setSignUpData,
+        cleanedSignUpData, // ✅ 전달
       }}
     >
       {children}

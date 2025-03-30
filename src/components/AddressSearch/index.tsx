@@ -30,12 +30,12 @@ const AddressSearch: React.FC<AddressSearchProps> = ({ onAddressSelect }) => {
       console.log('Naver Maps script loaded successfully');
       naverMapRef.current = (window as any).naver;
 
-      // 네이버 맵 객체 구조 확인
-      console.log('Naver Map Object:', naverMapRef.current);
-      console.log('Maps Object:', naverMapRef.current.maps);
-      console.log('Service Object:', naverMapRef.current.maps.Service);
+      // // 네이버 맵 객체 구조 확인
+      // console.log('Naver Map Object:', naverMapRef.current);
+      // console.log('Maps Object:', naverMapRef.current.maps);
+      // console.log('Service Object:', naverMapRef.current.maps.Service);
 
-      console.log('Naver Maps script loaded successfully');
+      // console.log('Naver Maps script loaded successfully');
       naverMapRef.current = (window as any).naver;
     };
 
@@ -165,30 +165,39 @@ const AddressSearch: React.FC<AddressSearchProps> = ({ onAddressSelect }) => {
 // 스타일 컴포넌트
 const Container = styled.div`
   width: 100%;
-  max-width: 600px;
   margin: 0 auto;
-  border: 2px solid #c6c4c2;
 `;
 
 const SearchBar = styled.div`
   display: flex;
   /* margin-bottom: 16px; */
-  height: 60px;
+  /* height: 60px; */
+  /* width: 100%; */
+  border: 2px solid #c6c4c2;
 `;
 
 const Input = styled.input`
-  flex: 1;
-  padding: 10px 16px;
-  border: 1px solid #ddd;
+  flex: 6;
+  /* padding: 10px 16px; */
+  /* border: 2px solid #ddd; */
+  border: none;
   font-size: 16px;
+  width: 100%;
+  height: 60px;
+  text-align: center;
+  padding: 0;
 `;
 
 const SearchButton = styled.button`
-  padding: 10px 20px;
+  flex: 1;
+  /* padding: 20px; */
   background-color: #d0b9a8;
   color: #2d2d2d;
-  border: none;
   cursor: pointer;
+  height: 60px;
+  border: none;
+  /* border: 2px solid #c6c4c2; */
+  /* padding: 1px 2px; */
 
   &:hover {
     background-color: #02b350;
@@ -199,7 +208,7 @@ const ResultList = styled.ul`
   list-style: none;
   padding: 0;
   margin: 0;
-  border: 1px solid #ddd;
+  /* border: 1px solid #ddd; */
   border-radius: 4px;
   max-height: 400px;
   overflow-y: auto;

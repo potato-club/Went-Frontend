@@ -18,7 +18,8 @@ function App() {
 
 const AppWrapper = styled.div`
   /* background-color: #f8f5f2; */
-  height: 100vh;
+  display: flex;
+  height: 100%;
 `;
 
 export default App;
