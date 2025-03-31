@@ -39,8 +39,11 @@ function LoginPage() {
 
         const userInfo = userInfoRes.data;
 
+        console.log('✅ 구글 사용자 정보:', userInfoRes);
+        console.log('✅ 구글 socialKey:', access_token);
+
         const newUserData = {
-          socialKey: userInfo.sub?.trim() || '',
+          socialKey: access_token?.trim() || '',
           email: userInfo.email?.trim() || '',
         };
 

@@ -63,7 +63,7 @@ const AddressSearch: React.FC<AddressSearchProps> = ({ onAddressSelect }) => {
 
     try {
       const response = await fetch(
-        `https://cors-anywhere.herokuapp.com/https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query=${encodeURIComponent(
+        `https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query=${encodeURIComponent(
           keyword
         )}`,
         {
