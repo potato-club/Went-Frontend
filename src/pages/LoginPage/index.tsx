@@ -15,6 +15,8 @@ import { useCustomKakaoLogin } from '../../hooks/useCustomKakaoLogin';
 import { useCustomGoogleLogin } from '../../hooks/useCustomGoogleLogin';
 
 function LoginPage() {
+  const handleGoogleLogin = useCustomGoogleLogin(); // 훅 호출
+
   return (
     <LoginPageWrapper>
       <Title>(), 다녀왔습니다.</Title>
@@ -24,7 +26,7 @@ function LoginPage() {
           <DescriptionBox>아래의 로그인 방식으로 함께 하세요.</DescriptionBox>
 
           <ImageBoxWrapper>
-            <ImageBox onClick={useCustomGoogleLogin}>
+            <ImageBox onClick={(e) => handleGoogleLogin()}>
               <img alt='구글 로그인' src={googleImg} />
               <span>{'구글\n로그인'}</span>
             </ImageBox>
