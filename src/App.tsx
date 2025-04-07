@@ -1,26 +1,29 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Route, Routes } from 'react-router-dom';
+import styled from 'styled-components';
+import LoginPage from './pages/LoginPage';
+import WelcomePage from './pages/WelcomePage';
+import SignUpPage from './pages/SignUpPage';
+import ExistUserPage from './pages/ExistUserPage';
+import KakaoRedirectPage from './pages/KakaoRedirectPage';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AppWrapper>
+      <Routes>
+        <Route path='/login' element={<LoginPage />} />
+        <Route path='/auth/kakao/callback' element={<KakaoRedirectPage />} />
+        <Route path='/signUp/:step' element={<SignUpPage />} />
+        <Route path='/welcome' element={<WelcomePage />} />
+        <Route path='/existUser' element={<ExistUserPage />} />
+      </Routes>
+    </AppWrapper>
   );
 }
+
+const AppWrapper = styled.div`
+  /* background-color: #f8f5f2; */
+  display: flex;
+  height: 100%;
+`;
 
 export default App;
