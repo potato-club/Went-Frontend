@@ -1,9 +1,7 @@
-import Header from "../../components/Header"
-
 const MyPage=()=>{
 
     return(
-       <Header/>
+        <div>마이페이지</div>
     )
 }
 

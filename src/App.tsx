@@ -6,6 +6,7 @@ import SignUpPage from './pages/SignUpPage';
 import ExistUserPage from './pages/ExistUserPage';
 import KakaoRedirectPage from './pages/KakaoRedirectPage';
 import MyPage from './pages/MyPage/Mypage';
+import Layout from './components/Layout/Layout';
 
 function App() {
   return (
@@ -16,7 +17,10 @@ function App() {
         <Route path='/signUp/:step' element={<SignUpPage />} />
         <Route path='/welcome' element={<WelcomePage />} />
         <Route path='/existUser' element={<ExistUserPage />} />
+        {/* 헤더를 포함하는 페이지 */}
+        <Route element={<Layout/>}>
         <Route path='/mypage' element={<MyPage />} />
+        </Route>
       </Routes>
     </AppWrapper>
   );
