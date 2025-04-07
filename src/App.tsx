@@ -5,6 +5,7 @@ import WelcomePage from './pages/WelcomePage';
 import SignUpPage from './pages/SignUpPage';
 import ExistUserPage from './pages/ExistUserPage';
 import KakaoRedirectPage from './pages/KakaoRedirectPage';
+import MyPage from './pages/MyPage/Mypage';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path='/signUp/:step' element={<SignUpPage />} />
         <Route path='/welcome' element={<WelcomePage />} />
         <Route path='/existUser' element={<ExistUserPage />} />
+        <Route path='/mypage' element={<MyPage />} />
       </Routes>
     </AppWrapper>
   );
