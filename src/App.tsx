@@ -2,9 +2,9 @@ import { Route, Routes } from 'react-router-dom';
 import styled from 'styled-components';
 import LoginPage from './pages/LoginPage';
 import WelcomePage from './pages/WelcomePage';
-import SignUpPage from './pages/SignUpPage';
 import ExistUserPage from './pages/ExistUserPage';
 import KakaoRedirectPage from './pages/KakaoRedirectPage';
+import SignUpPage from './pages/SignupPage';
 
 function App() {
   return (
