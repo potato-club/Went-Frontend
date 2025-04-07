@@ -11,24 +11,22 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 
-const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_OAUTH_CLIENT_ID;
+// const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_OAUTH_CLIENT_ID;
 
-if (!GOOGLE_CLIENT_ID) {
-  throw new Error(
-    'REACT_APP_GOOGLE_OAUTH_CLIENT_ID is not defined in the environment variables'
-  );
-}
+// if (!GOOGLE_CLIENT_ID) {
+//   throw new Error(
+//     'REACT_APP_GOOGLE_OAUTH_CLIENT_ID is not defined in the environment variables'
+//   );
+// }
 
 root.render(
-  <React.StrictMode>
     <BrowserRouter>
-      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      {/* <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}> */}
         <AuthProvider>
           <App />
         </AuthProvider>
-      </GoogleOAuthProvider>
+      {/* </GoogleOAuthProvider> */}
     </BrowserRouter>
-  </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function
