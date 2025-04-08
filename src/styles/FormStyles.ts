@@ -42,9 +42,9 @@ export const RadioBox = styled.div`
 `;
 
 export const ButtonBox = styled.div`
-  width: 333px;
-  display: flex;
-  gap: 10px;
+  width: 100%;
+  /* display: flex; */
+  /* gap: 10px; */
   /* position: absolute; */
   /* top: 660px; */
 `;

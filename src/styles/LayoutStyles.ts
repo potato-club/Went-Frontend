@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 export const Title = styled.div`
   /* margin-top: 60px; */
-  font-size: 36px;
+  font-size: 32px;
   /* margin-bottom: 20px; */
 `;
 
@@ -15,15 +15,14 @@ export const SubTitle = styled.div`
 
 export const DescriptionBox = styled.div`
   width: 100%;
-  height: 30px;
-  border-bottom: 3px solid #c6c4c2;
+  /* height: 30px; */
   text-align: center;
   display: flex;
   flex-direction: column;
-  font-size: 18px;
-  padding-bottom: 10px;
+  font-size: 20px;
+  /* padding-bottom: 10px; */
   white-space: pre-wrap;
-  margin-top: 20px;
+  /* margin-top: 30px; */
 `;
 
 export const ChangedComponent = styled.div`
@@ -31,7 +30,12 @@ export const ChangedComponent = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
+  justify-content: center;
   /* align-items: center; */
   margin: 0 auto;
+  gap: 20px;
+`;
+
+export const Img = styled.img`
+  width: 100%;
 `;
