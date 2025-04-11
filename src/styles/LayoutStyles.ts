@@ -5,35 +5,33 @@ export const Title = styled.div`
   /* margin-top: 60px; */
   font-size: 32px;
   /* margin-bottom: 20px; */
+  font-family: 'Jalnan2';
+  color: #1d1d1d;
 `;
 
 export const SubTitle = styled.div`
-  margin-top: 20px;
+  /* margin-top: 20px;
   margin-bottom: 40px;
-  font-size: 25px;
+  font-size: 25px; */
 `;
 
 export const DescriptionBox = styled.div`
-  width: 100%;
-  /* height: 30px; */
+  margin-top: 20px;
   text-align: center;
-  display: flex;
-  flex-direction: column;
   font-size: 20px;
-  /* padding-bottom: 10px; */
   white-space: pre-wrap;
-  /* margin-top: 30px; */
+  font-family: 'Pretendard';
+  color: #474747;
 `;
 
 export const ChangedComponent = styled.div`
-  width: 100%;
+  /* width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  /* align-items: center; */
   margin: 0 auto;
-  gap: 20px;
+  gap: 20px; */
 `;
 
 export const Img = styled.img`

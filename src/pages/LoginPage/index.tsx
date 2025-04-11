@@ -22,7 +22,7 @@ function LoginPage() {
     <FullPageWrapper>
       <LoginPageWrapper>
         <Title>(), 다녀왔습니다.</Title>
-        <DescriptionBox>아래의 로그인 방식으로 함께 하세요.</DescriptionBox>
+        <DescriptionBox>아래의 로그인 방식으로 함께 하세요</DescriptionBox>
 
         <LoginPageBody>
           {/* <ChangedComponent> */}

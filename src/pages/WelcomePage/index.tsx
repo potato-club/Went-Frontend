@@ -3,6 +3,7 @@ import Button from '../../components/Button';
 import LoginPageBody from '../../components/LoginPageBody';
 import LoginPageWrapper from '../../components/LoginPageWrapper';
 import WentImg from '../../asset/WentLogo.png';
+import { ButtonBox } from '../../styles/FormStyles';
 
 function WelcomePage() {
   return (
@@ -17,8 +18,8 @@ function WelcomePage() {
         <Img alt='went 로고' src={WentImg} />
       </LoginPageBody>
 
-      <ButtonBox>
-        <Button>실시간 인기 리뷰 보러가기</Button>
+      <ButtonBox direction='column'>
+        <Button color='#1d1d1d'>실시간 인기 리뷰 보러가기</Button>
         <Button>메인 페이지로 이동하기</Button>
       </ButtonBox>
     </LoginPageWrapper>
@@ -48,11 +49,5 @@ const DescriptionBox = styled.div`
 `;
 
 const Img = styled.img``;
-
-const ButtonBox = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-`;
 
 export default WelcomePage;

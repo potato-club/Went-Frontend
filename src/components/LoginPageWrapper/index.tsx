@@ -1,13 +1,13 @@
 import styled from 'styled-components';
 
 const LoginPageWrapper = styled.div`
+  width: 400px;
+  /* height: 830px; */
+  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 400px;
-  height: 580px; /* 고정된 높이 */
-  padding: 0 30px;
-  justify-content: space-between;
-  /* gap: 20px; */
+  margin: 0 auto;
+  justify-content: center;
 `;
 export default LoginPageWrapper;
