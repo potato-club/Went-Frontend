@@ -23,7 +23,8 @@ const AddressSearch: React.FC<AddressSearchProps> = ({ onAddressSelect }) => {
   // 네이버 지도 스크립트 로드
   useEffect(() => {
     const script = document.createElement('script');
-    script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${process.env.REACT_APP_NAVER_MAP_API_KEY}&submodules=geocoder`;
+    // script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${process.env.REACT_APP_NAVER_MAP_API_KEY}&submodules=geocoder`;
+    script.src = `https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${process.env.REACT_APP_NAVER_MAP_API_KEY}&submodules=geocoder`;
     script.async = true;
 
     script.onload = () => {

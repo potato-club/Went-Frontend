@@ -1,18 +1,15 @@
 import styled from 'styled-components';
 
 const LoginPageWrapper = styled.div`
+  width: 400px;
+  /* height: 830px; */
+  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 380px;
-  height: 100vh; /* 전체 화면 높이 */
-  min-height: 750px;
   margin: 0 auto;
-  padding: 0 30px;
   justify-content: center;
-  max-width: 100%; /* 화면 크기가 작을 때 대응 */
-  gap: 40px;
-  position: relative;
+  margin-top: 20px;
+  overflow: hidden; /* 스크롤바 숨기기 */
 `;
-
 export default LoginPageWrapper;

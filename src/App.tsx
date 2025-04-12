@@ -2,9 +2,9 @@ import { Route, Routes } from 'react-router-dom';
 import styled from 'styled-components';
 import LoginPage from './pages/LoginPage';
 import WelcomePage from './pages/WelcomePage';
-import SignUpPage from './pages/SignUpPage';
 import ExistUserPage from './pages/ExistUserPage';
 import KakaoRedirectPage from './pages/KakaoRedirectPage';
+import SignUpPage from './pages/SignUpPage';
 
 function App() {
   return (
@@ -12,7 +12,7 @@ function App() {
       <Routes>
         <Route path='/login' element={<LoginPage />} />
         <Route path='/auth/kakao/callback' element={<KakaoRedirectPage />} />
-        <Route path='/signUp/:step' element={<SignUpPage />} />
+        <Route path='/signUp' element={<SignUpPage />} />
         <Route path='/welcome' element={<WelcomePage />} />
         <Route path='/existUser' element={<ExistUserPage />} />
       </Routes>
@@ -20,10 +20,6 @@ function App() {
   );
 }
 
-const AppWrapper = styled.div`
-  /* background-color: #f8f5f2; */
-  display: flex;
-  height: 100%;
-`;
+const AppWrapper = styled.div``;
 
 export default App;
