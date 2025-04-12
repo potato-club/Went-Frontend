@@ -10,7 +10,10 @@ import LoginPageBody from '../../components/LoginPageBody';
 import { useAuth, SignUpData } from '../../contexts/AuthContext';
 import {
   ButtonBox,
+  CategoryItem,
+  CategoryList,
   CategoryWrapper,
+  Form,
   Input,
   InputBox,
   InputWrapper,
@@ -23,11 +26,11 @@ function SignUpPage() {
   // const [selectedInterests, setSelectedInterests] = useState<string[]>([]); // State for selected interests
 
   const categories = [
-    { categoryId: '1', name: 'book', koName: '' },
-    { categoryId: '2', name: 'game', koName: '' },
-    { categoryId: '3', name: 'music', koName: '' },
-    { categoryId: '4', name: 'performance', koName: '' },
-    { categoryId: '5', name: 'movie', koName: '' },
+    { categoryId: '1', name: 'book', koName: '책' },
+    { categoryId: '2', name: 'location', koName: '장소' },
+    { categoryId: '3', name: 'music', koName: '음악' },
+    { categoryId: '4', name: 'performance', koName: '공연' },
+    { categoryId: '5', name: 'movie', koName: '영화' },
   ];
 
   const navigate = useNavigate();
@@ -75,51 +78,62 @@ function SignUpPage() {
     <LoginPageWrapper>
       <LoginPageBody>
         <Title>(), 다녀왔습니다.</Title>
+        <Form onSubmit={nextPage}>
+          <InputWrapper>
+            <InputBox direction='column'>
+              <label>닉네임</label>
+              <Input placeholder='사용할 닉네임을 입력해주세요' />
+            </InputBox>
 
-        <InputWrapper>
-          <InputBox direction='column'>
-            <label>닉네임</label>
-            <Input placeholder='사용할 닉네임을 입력해주세요' />
-          </InputBox>
+            <InputBox direction='column'>
+              <label>지역</label>
+              <Input placeholder='사용할 닉네임을 입력해주세요' />
+            </InputBox>
 
-          <InputBox direction='column'>
-            <label>지역</label>
-            <Input placeholder='사용할 닉네임을 입력해주세요' />
-          </InputBox>
+            <InputBox direction='column'>
+              <label>생년월일</label>
+              <Input placeholder='사용할 닉네임을 입력해주세요' />
+            </InputBox>
+          </InputWrapper>
 
-          <InputBox direction='column'>
-            <label>생년월일</label>
-            <Input placeholder='사용할 닉네임을 입력해주세요' />
-          </InputBox>
-        </InputWrapper>
+          <CategoryWrapper>
+            <div>카테고리 선택 (1개 이상 선택)</div>
+            <CategoryList>
+              {categories.map((category) => (
+                <CategoryItem
+                  key={category.categoryId}
+                  type='button'
+                  selected={signUpData.categoryIds.includes(
+                    category.categoryId
+                  )}
+                  onClick={() => {
+                    const isSelected = signUpData.categoryIds.includes(
+                      category.categoryId
+                    );
+                    setSignUpData((prev: SignUpData) => ({
+                      ...prev,
+                      categoryIds: isSelected
+                        ? prev.categoryIds.filter(
+                            (id) => id !== category.categoryId
+                          )
+                        : [...prev.categoryIds, category.categoryId],
+                    }));
+                  }}
+                >
+                  {category.koName}
+                  {signUpData.categoryIds.includes(category.categoryId) && ' ×'}
+                </CategoryItem>
+              ))}
+            </CategoryList>
+          </CategoryWrapper>
 
-        <CategoryWrapper>
-          <div>카테고리 선택 (1개 이상 선택)</div>
-          <div>
-            <label htmlFor=''>
-              <input type='checkbox' value='영화' /> 영화
-            </label>
-            <label htmlFor=''>
-              <input type='checkbox' value='장소' /> 장소
-            </label>
-            <label htmlFor=''>
-              <input type='checkbox' value='공연' /> 공연
-            </label>
-            <label htmlFor=''>
-              <input type='checkbox' value='음악' /> 음악
-            </label>
-            <label htmlFor=''>
-              <input type='checkbox' value='책' /> 책
-            </label>
-          </div>
-        </CategoryWrapper>
-
-        <ButtonBox>
-          <Button color='#eee'>취소</Button>
-          <Button color='#1d1d1d' onClick={nextPage}>
-            가입하기
-          </Button>
-        </ButtonBox>
+          <ButtonBox>
+            <Button color='#eee'>취소</Button>
+            <Button color='#1d1d1d' type='submit'>
+              가입하기
+            </Button>
+          </ButtonBox>
+        </Form>
       </LoginPageBody>
     </LoginPageWrapper>
   );

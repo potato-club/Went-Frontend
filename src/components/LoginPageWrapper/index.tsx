@@ -9,5 +9,7 @@ const LoginPageWrapper = styled.div`
   align-items: center;
   margin: 0 auto;
   justify-content: center;
+  margin-top: 20px;
+  overflow: hidden; /* 스크롤바 숨기기 */
 `;
 export default LoginPageWrapper;
