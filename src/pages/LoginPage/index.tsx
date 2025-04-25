@@ -1,22 +1,25 @@
-import styled from 'styled-components';
-import googleImg from '../../asset/googleImg.png';
-import kakaoImg from '../../asset/kakaoImg.png';
-import Button from '../../components/Button';
-import LoginPageBody from '../../components/LoginPageBody';
-import LoginPageWrapper from '../../components/LoginPageWrapper';
+import styled from "styled-components";
+import googleImg from "../../asset/googleImg.png";
+import kakaoImg from "../../asset/kakaoImg.png";
+import Button from "../../components/Button";
+import LoginPageBody from "../../components/LoginPageBody";
+import LoginPageWrapper from "../../components/LoginPageWrapper";
 import {
   Title,
   SubTitle,
   DescriptionBox,
   ChangedComponent,
   Img,
-} from '../../styles/LayoutStyles';
-import { ButtonBox } from '../../styles/FormStyles';
-import { useCustomKakaoLogin } from '../../hooks/useCustomKakaoLogin';
-import { useCustomGoogleLogin } from '../../hooks/useCustomGoogleLogin';
+} from "../../styles/LayoutStyles";
+import { ButtonBox } from "../../styles/FormStyles";
+import { useNavigate } from "react-router-dom";
 
 function LoginPage() {
-  const handleGoogleLogin = useCustomGoogleLogin(); // 훅 호출
+  const navigate = useNavigate();
+
+  const goToMainPage = () => {
+    navigate("/main");
+  };
 
   return (
     <FullPageWrapper>
@@ -28,17 +31,19 @@ function LoginPage() {
           {/* <ChangedComponent> */}
           <ImageBoxWrapper>
             {/* <ImageBox onClick={useCustomKakaoLogin}> */}
-            <Img alt='카카오 로그인' src={kakaoImg} />
+            <Img alt="카카오 로그인" src={kakaoImg} />
             {/* </ImageBox> */}
             {/* <ImageBox onClick={(e) => handleGoogleLogin()}> */}
-            <Img alt='구글 로그인' src={googleImg} />
+            <Img alt="구글 로그인" src={googleImg} />
             {/* </ImageBox> */}
           </ImageBoxWrapper>
           {/* </ChangedComponent> */}
         </LoginPageBody>
 
         <ButtonBox>
-          <Button>메인 페이지로 이동하기</Button>
+          <Button color="#1D1D1D" onClick={goToMainPage}>
+            메인 페이지로 이동하기
+          </Button>
         </ButtonBox>
       </LoginPageWrapper>
     </FullPageWrapper>

@@ -1,11 +1,11 @@
 // src/styles/LayoutStyles.ts
-import styled from 'styled-components';
+import styled from "styled-components";
 
 export const Title = styled.div`
   /* margin-top: 60px; */
   font-size: 32px;
   /* margin-bottom: 20px; */
-  font-family: 'Jalnan2';
+  font-family: "Jalnan2";
   color: #1d1d1d;
 `;
 
@@ -20,7 +20,7 @@ export const DescriptionBox = styled.div`
   text-align: center;
   font-size: 20px;
   white-space: pre-wrap;
-  font-family: 'Pretendard';
+  font-family: "Pretendard";
   color: #474747;
 `;
 
@@ -36,4 +36,5 @@ export const ChangedComponent = styled.div`
 
 export const Img = styled.img`
   width: 100%;
+  cursor: pointer;
 `;
