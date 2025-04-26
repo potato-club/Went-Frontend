@@ -41,7 +41,7 @@ function LoginPage() {
         </LoginPageBody>
 
         <ButtonBox>
-          <Button color="#1D1D1D" onClick={goToMainPage}>
+          <Button color="#fff" bgColor="#1D1D1D" onClick={goToMainPage}>
             메인 페이지로 이동하기
           </Button>
         </ButtonBox>

@@ -1,13 +1,13 @@
-import { AuthProvider } from './../contexts/AuthContext';
+import { AuthProvider } from "./../contexts/AuthContext";
 // src/styles/FormStyles.ts
-import styled from 'styled-components';
+import styled from "styled-components";
 
 interface InputBoxProps {
-  direction?: 'row' | 'column';
+  direction?: "row" | "column";
 }
 
 interface ButtonBoxProps {
-  direction?: 'row' | 'column'; // flex-direction 값
+  direction?: "row" | "column"; // flex-direction 값
 }
 
 export const InputBox = styled.div<InputBoxProps>`
@@ -56,7 +56,7 @@ export const ButtonBox = styled.div<ButtonBoxProps>`
   width: 400px;
   display: flex;
   gap: 10px;
-  flex-direction: ${(props) => props.direction || 'row'}; // 기본값은 'row'
+  flex-direction: ${(props) => props.direction || "row"}; // 기본값은 'row'
   margin-top: 50px;
 `;
 
@@ -94,13 +94,13 @@ export const CategoryItem = styled.button<CategoryItemProps>`
   padding: 10px 14px;
   border-radius: 999px;
   font-size: 14px;
-  border: 1px solid ${({ selected }) => (selected ? '#000' : '#ddd')};
-  background-color: ${({ selected }) => (selected ? '#000' : '#fff')};
-  color: ${({ selected }) => (selected ? '#fff' : '#000')};
+  border: 1px solid ${({ selected }) => (selected ? "#000" : "#ddd")};
+  background-color: ${({ selected }) => (selected ? "#000" : "#fff")};
+  color: ${({ selected }) => (selected ? "#fff" : "#474747")};
   cursor: pointer;
 
   &:hover {
-    background-color: ${({ selected }) => (selected ? '#111' : '#f3f3f3')};
+    background-color: ${({ selected }) => (selected ? "#111" : "#f3f3f3")};
   }
 `;
 

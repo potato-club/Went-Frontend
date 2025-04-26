@@ -29,7 +29,8 @@ function SignUpPage() {
   const navigate = useNavigate();
   const { signUpData, setSignUpData, cleanedSignUpData } = useAuth();
 
-  const nextPage = () => {
+  const nextPage = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     navigate("/welcome");
   };
 
@@ -115,22 +116,25 @@ function SignUpPage() {
           </InputWrapper>
 
           <CategoryWrapper>
-            <div>카테고리 선택 (1개 이상 선택)</div>
-            <CategoryList>
-              {CATEGORIES.map((category) => (
-                <CategoryItem
-                  key={category.categoryId}
-                  type="button"
-                  selected={signUpData.categoryIds.includes(
-                    category.categoryId
-                  )}
-                  onClick={() => handleCategoryClick(category.categoryId)}
-                >
-                  {category.koName}
-                  {signUpData.categoryIds.includes(category.categoryId) && " ×"}
-                </CategoryItem>
-              ))}
-            </CategoryList>
+            <InputBox direction="column">
+              <label>카테고리 선택 (1개 이상 선택)</label>
+              <CategoryList>
+                {CATEGORIES.map((category) => (
+                  <CategoryItem
+                    key={category.categoryId}
+                    type="button"
+                    selected={signUpData.categoryIds.includes(
+                      category.categoryId
+                    )}
+                    onClick={() => handleCategoryClick(category.categoryId)}
+                  >
+                    {category.koName}
+                    {signUpData.categoryIds.includes(category.categoryId) &&
+                      " ×"}
+                  </CategoryItem>
+                ))}
+              </CategoryList>
+            </InputBox>
           </CategoryWrapper>
 
           <ButtonBox>
