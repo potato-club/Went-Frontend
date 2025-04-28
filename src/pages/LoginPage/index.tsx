@@ -13,6 +13,21 @@ import {
 } from "../../styles/LayoutStyles";
 import { ButtonBox } from "../../styles/FormStyles";
 import { useNavigate } from "react-router-dom";
+import { useCustomKakaoLogin } from "../../hooks/useCustomKakaoLogin";
+import { useGoogleLogin, TokenResponse } from "@react-oauth/google";
+import axios, { AxiosResponse } from "axios";
+import { useEffect } from "react";
+
+declare global {
+  interface Window {
+    Kakao: any;
+  }
+}
+
+interface SocialLoginResponse {
+  accessToken: string;
+  refreshToken: string;
+}
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -20,6 +35,104 @@ function LoginPage() {
   const goToMainPage = () => {
     navigate("/main");
   };
+
+  useEffect(() => {
+    if (!window.Kakao?.isInitialized()) {
+      window.Kakao?.init(process.env.REACT_APP_KAKAO_REST_API_KEY);
+    }
+  }, []);
+
+  const handleKakaoLogin = async () => {
+    try {
+      if (!window.Kakao) {
+        console.error("카카오 SDK가 로드되지 않았습니다.");
+        return;
+      }
+
+      window.Kakao.Auth.login({
+        scope: "profile_nickname, account_email", // 요청할 동의 항목
+        success: async (authObj: { access_token: string }) => {
+          console.log("✅ 카카오 access_token:", authObj.access_token);
+
+          // 1. 카카오 access_token을 백엔드로 전달
+          const res = await axios.post("/api/auth/social-login", {
+            provider: "kakao",
+            token: authObj.access_token,
+          });
+
+          // 2. 백엔드가 at, rt 발급해서 응답
+          const { accessToken, refreshToken } = res.data;
+
+          console.log("✅ 백엔드 accessToken:", accessToken);
+          console.log("✅ 백엔드 refreshToken:", refreshToken);
+
+          // 3. 세션스토리지에 저장
+          sessionStorage.setItem("accessToken", accessToken);
+          sessionStorage.setItem("refreshToken", refreshToken);
+
+          // 4. 로그인 성공 후 이동
+          navigate("/");
+        },
+        fail: (err: unknown) => {
+          console.error("❌ 카카오 로그인 실패:", err);
+          alert("카카오 로그인에 실패했습니다.");
+        },
+      });
+    } catch (error) {
+      console.error("❌ 로그인 중 오류:", error);
+      alert("로그인 중 문제가 발생했습니다.");
+    }
+  };
+
+  const handleGoogleLogin = useGoogleLogin({
+    flow: "implicit",
+    onSuccess: async (tokenResponse: TokenResponse) => {
+      try {
+        console.log("✅ 구글 로그인 성공:", tokenResponse);
+
+        const { access_token } = tokenResponse;
+
+        console.log("✅ 구글 access_token:", access_token);
+
+        const userInfoRes = await axios.get(
+          "https://www.googleapis.com/oauth2/v3/userinfo",
+          {
+            headers: {
+              Authorization: `Bearer ${access_token}`,
+            },
+          }
+        );
+
+        console.log(userInfoRes);
+
+        // // 1. 구글 access_token을 백엔드로 전달
+        // const res = await axios.post("/api/auth/social-login", {
+        //   provider: "google",
+        //   token: access_token,
+        // });
+
+        // 2. 백엔드가 at, rt 발급해서 응답
+        // const { accessToken, refreshToken } = res.data;
+
+        // console.log("✅ 백엔드 accessToken:", accessToken);
+        // console.log("✅ 백엔드 refreshToken:", refreshToken);
+
+        // // 3. 프론트 세션스토리지에 저장
+        // sessionStorage.setItem("accessToken", accessToken);
+        // sessionStorage.setItem("refreshToken", refreshToken);
+
+        // // 4. 로그인 성공 후 이동
+        // navigate("/");
+      } catch (error) {
+        console.error("❌ 로그인 실패:", error);
+        alert("로그인 중 오류가 발생했습니다.");
+      }
+    },
+    onError: (error: unknown) => {
+      console.error("❌ 구글 로그인 에러:", error);
+      alert("구글 로그인에 실패했습니다.");
+    },
+  });
 
   return (
     <FullPageWrapper>
@@ -31,10 +144,18 @@ function LoginPage() {
           {/* <ChangedComponent> */}
           <ImageBoxWrapper>
             {/* <ImageBox onClick={useCustomKakaoLogin}> */}
-            <Img alt="카카오 로그인" src={kakaoImg} />
+            <Img
+              alt="카카오 로그인"
+              src={kakaoImg}
+              onClick={handleKakaoLogin}
+            />
             {/* </ImageBox> */}
             {/* <ImageBox onClick={(e) => handleGoogleLogin()}> */}
-            <Img alt="구글 로그인" src={googleImg} />
+            <Img
+              alt="구글 로그인"
+              src={googleImg}
+              onClick={() => handleGoogleLogin()}
+            />
             {/* </ImageBox> */}
           </ImageBoxWrapper>
           {/* </ChangedComponent> */}
