@@ -20,7 +20,6 @@ if (!GOOGLE_CLIENT_ID) {
 }
 
 root.render(
-  <React.StrictMode>
     <BrowserRouter>
       <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
         <AuthProvider>
@@ -28,7 +27,6 @@ root.render(
         </AuthProvider>
       </GoogleOAuthProvider>
     </BrowserRouter>
-  </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function
