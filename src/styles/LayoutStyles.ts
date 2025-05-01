@@ -3,35 +3,37 @@ import styled from 'styled-components';
 
 export const Title = styled.div`
   /* margin-top: 60px; */
-  font-size: 36px;
+  font-size: 32px;
   /* margin-bottom: 20px; */
+  font-family: 'Jalnan2';
+  color: #1d1d1d;
 `;
 
 export const SubTitle = styled.div`
-  margin-top: 20px;
+  /* margin-top: 20px;
   margin-bottom: 40px;
-  font-size: 25px;
+  font-size: 25px; */
 `;
 
 export const DescriptionBox = styled.div`
-  width: 100%;
-  height: 30px;
-  border-bottom: 3px solid #c6c4c2;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  font-size: 18px;
-  padding-bottom: 10px;
-  white-space: pre-wrap;
   margin-top: 20px;
+  text-align: center;
+  font-size: 20px;
+  white-space: pre-wrap;
+  font-family: 'Pretendard';
+  color: #474747;
 `;
 
 export const ChangedComponent = styled.div`
-  width: 100%;
+  /* width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
-  /* align-items: center; */
+  justify-content: center;
   margin: 0 auto;
+  gap: 20px; */
+`;
+
+export const Img = styled.img`
+  width: 100%;
 `;

@@ -69,12 +69,8 @@ function UserProfileSetupPage() {
 
   return (
     <LoginPageBody>
-      <SubTitle>회원가입</SubTitle>
-
       <ChangedComponent>
-        <DescriptionBox>아래의 2개는 필수로 입력해주세요</DescriptionBox>
-
-        <InputBox direction='column'>
+        {/* <InputBox direction='column'>
           <Input
             type='text'
             placeholder='닉네임'
@@ -86,10 +82,10 @@ function UserProfileSetupPage() {
           ) : (
             <AddressSearch onAddressSelect={handleAddress} />
           )}
-        </InputBox>
+        </InputBox> */}
       </ChangedComponent>
 
-      <ChangedComponent>
+      {/* <ChangedComponent>
         <DescriptionBox>1개 이상의 관심사를 선택해주세요</DescriptionBox>
         <RadioBox>
           <CategoryWrapper>
@@ -107,7 +103,7 @@ function UserProfileSetupPage() {
             ))}
           </CategoryWrapper>
         </RadioBox>
-      </ChangedComponent>
+      </ChangedComponent> */}
 
       <ButtonBox>
         <Button>취소</Button>

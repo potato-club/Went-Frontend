@@ -25,6 +25,7 @@ export const useCustomGoogleLogin = () => {
         );
 
         const userInfo = userInfoRes.data;
+        console.log('구글 사용자 정보:', userInfo);
         const newUserData = {
           socialKey: access_token?.trim() || '',
           email: userInfo.email?.trim() || '',
