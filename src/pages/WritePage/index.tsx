@@ -1,8 +1,10 @@
 import { useState } from "react";
 import styled from "styled-components";
+import TiptapEditor from "../../components/TiptapEditor";
 
 const WritePage = () => {
   const [rating, setRating] = useState(0); // 별점 상태 (0~5)
+  const [editorContent, setEditorContent] = useState("");
 
   const handleClick = (index: number) => {
     // 같은 별 다시 누르면 초기화
@@ -52,7 +54,9 @@ const WritePage = () => {
         </OptionBox>
         <Input type="text" placeholder="제목을 입력해주세요." />
       </InputBox>
-      <div>위지윅 에디터 부분</div>
+      {/* <div>위지윅 에디터 부분</div> */}
+      <TiptapEditor content={editorContent} onChange={setEditorContent} />
+
       <ButtonBox>
         <button>불러오기</button>
         <button>임시저장</button>
@@ -65,13 +69,13 @@ const WritePage = () => {
 export default WritePage;
 
 const Container = styled.div`
-  border: 2px solid red;
+  /* border: 2px solid red; */
   margin: 0 140px;
   margin-top: 100px;
 `;
 
 const Title = styled.div`
-  border: 2px solid green;
+  /* border: 2px solid green; */
   font-size: 38px;
   font-style: normal;
   font-weight: 500;
@@ -80,7 +84,7 @@ const Title = styled.div`
 `;
 
 const InputBox = styled.div`
-  border: 2px solid blue;
+  /* border: 2px solid blue; */
 `;
 
 const OptionBox = styled.div`
@@ -131,14 +135,14 @@ const StarWrapper = styled.div`
   appearance: none;
   padding: 8px;
   text-align: center;
-  gap: 15px;
 
   span {
-    margin-right: 30px;
+    margin-right: 15px;
   }
 `;
 
 const StarButton = styled.button`
+  width: 16%;
   background: transparent;
   border: none;
   padding: 0;
@@ -150,12 +154,14 @@ const StarButton = styled.button`
 `;
 
 const Input = styled.input`
+  width: 100%;
   border: none;
   font-size: 34px;
   font-style: normal;
   font-weight: 500;
   line-height: normal;
-  padding: 10px;
+  /* padding: 10px;   */
+  margin: 30px 0;
 `;
 
 const ButtonBox = styled.div`
