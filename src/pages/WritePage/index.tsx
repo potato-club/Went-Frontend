@@ -14,6 +14,10 @@ const WritePage = () => {
       setRating(index + 1);
     }
   };
+
+  const handleSubmit = () => {
+    console.log("에디터 내용:", editorContent);
+  };
   return (
     <Container>
       <Title>리뷰 작성</Title>
@@ -60,7 +64,7 @@ const WritePage = () => {
       <ButtonBox>
         <button>불러오기</button>
         <button>임시저장</button>
-        <button>등록</button>
+        <button onClick={handleSubmit}>등록</button>
       </ButtonBox>
     </Container>
   );
@@ -95,7 +99,7 @@ const OptionBox = styled.div`
 
 const Select = styled.select`
   width: 30%;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 500;
   border: none;
   border-bottom: 2px solid black;
@@ -127,7 +131,7 @@ const StarWrapper = styled.div`
   justify-content: center;
   align-items: center;
   width: 30%;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 500;
   border: none;
   border-bottom: 2px solid black;
@@ -156,7 +160,7 @@ const StarButton = styled.button`
 const Input = styled.input`
   width: 100%;
   border: none;
-  font-size: 34px;
+  font-size: 30px;
   font-style: normal;
   font-weight: 500;
   line-height: normal;
@@ -166,4 +170,8 @@ const Input = styled.input`
 
 const ButtonBox = styled.div`
   float: right;
+  padding: 40px 0;
+
+  display: flex;
+  gap: 10px;
 `;
