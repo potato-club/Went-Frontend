@@ -62,9 +62,9 @@ const WritePage = () => {
       <TiptapEditor content={editorContent} onChange={setEditorContent} />
 
       <ButtonBox>
-        <button>불러오기</button>
-        <button>임시저장</button>
-        <button onClick={handleSubmit}>등록</button>
+        <WhiteButton>불러오기</WhiteButton>
+        <WhiteButton>임시저장</WhiteButton>
+        <BlackButton onClick={handleSubmit}>등록</BlackButton>
       </ButtonBox>
     </Container>
   );
@@ -102,29 +102,15 @@ const Select = styled.select`
   font-size: 18px;
   font-weight: 500;
   border: none;
-  border-bottom: 2px solid black;
-  background: none;
+  border-bottom: 1px solid #e2e2e2;
+  background: url("arrow-down-gray.svg") no-repeat right 10px center;
+  background-size: 16px;
   appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
   padding: 0 20px;
+  outline: none;
 `;
-
-// const Category = styled.div`
-//   border-bottom: 2px solid black;
-//   font-size: 22px;
-//   font-style: normal;
-//   font-weight: 500;
-//   line-height: normal;
-//   width: 30%;
-// `;
-
-// const Media = styled.div`
-//   border-bottom: 2px solid black;
-//   font-size: 22px;
-//   font-style: normal;
-//   font-weight: 500;
-//   line-height: normal;
-//   width: 30%;
-// `;
 
 const StarWrapper = styled.div`
   display: flex;
@@ -134,7 +120,7 @@ const StarWrapper = styled.div`
   font-size: 18px;
   font-weight: 500;
   border: none;
-  border-bottom: 2px solid black;
+  border-bottom: 1px solid #e2e2e2;
   background: none;
   appearance: none;
   padding: 8px;
@@ -158,14 +144,18 @@ const StarButton = styled.button`
 `;
 
 const Input = styled.input`
-  width: 100%;
+  width: 96%;
   border: none;
   font-size: 30px;
   font-style: normal;
-  font-weight: 500;
   line-height: normal;
-  /* padding: 10px;   */
+  padding: 0 2%;
   margin: 30px 0;
+  outline: none;
+
+  &::placeholder {
+    color: #e2e2e2;
+  }
 `;
 
 const ButtonBox = styled.div`
@@ -173,5 +163,24 @@ const ButtonBox = styled.div`
   padding: 40px 0;
 
   display: flex;
-  gap: 10px;
+  gap: 15px;
+`;
+
+const WhiteButton = styled.button`
+  background-color: #fff;
+  color: #1d1d1d;
+  border: 1px solid #1d1d1d;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+`;
+
+const BlackButton = styled.button`
+  background-color: #1d1d1d;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
 `;

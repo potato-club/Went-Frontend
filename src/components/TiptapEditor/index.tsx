@@ -25,6 +25,12 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
       TextAlign.configure({ types: ["heading", "paragraph"] }),
     ],
     content,
+    editorProps: {
+      attributes: {
+        class: "ProseMirror",
+        "data-placeholder": "내용을 입력하세요...",
+      },
+    },
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
@@ -75,10 +81,9 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
       editor.commands.insertContent(videoTag);
     }
 
-    e.target.value = ""; // 동일 파일 재업로드 허용을 위해 초기화
+    e.target.value = ""; // 동일 파일 재업로드 허용
   };
 
-  // ✅ 파일 업로드 함수 (form-data 방식)
   const uploadFile = async (file: File): Promise<string | null> => {
     try {
       const formData = new FormData();
@@ -88,7 +93,7 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      return res.data.url; // 백엔드 응답에서 업로드된 파일 URL
+      return res.data.url;
     } catch (err) {
       console.error("❌ 파일 업로드 실패:", err);
       alert("파일 업로드 중 오류가 발생했습니다.");
@@ -163,24 +168,22 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
         />
       </Toolbar>
 
-      <EditorContent editor={editor} />
+      <EditorContentWrapper onClick={() => editor?.commands.focus()}>
+        <EditorContent editor={editor} />
+      </EditorContentWrapper>
     </EditorWrapper>
   );
 };
 
 export default TiptapEditor;
 
-// =================== Styled ===================
-
 const EditorWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 400px; /* 에디터 전체 높이 고정 */
   border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 8px;
-  .ProseMirror {
-    min-height: 300px;
-    padding: 16px;
-    outline: none;
-  }
+  overflow: hidden;
 `;
 
 const Toolbar = styled.div`
@@ -188,6 +191,7 @@ const Toolbar = styled.div`
   gap: 6px;
   border-bottom: 1px solid #eee;
   padding: 6px;
+  background-color: white;
 
   button {
     background: none;
@@ -199,6 +203,27 @@ const Toolbar = styled.div`
 
     &:hover {
       background-color: #f2f2f2;
+    }
+  }
+`;
+
+const EditorContentWrapper = styled.div`
+  flex: 1;
+  overflow-y: auto;
+
+  .ProseMirror {
+    padding: 16px;
+    outline: none;
+    min-height: 100%;
+    height: 100%;
+    cursor: text;
+    box-sizing: border-box;
+
+    display: block;
+
+    &:empty::before {
+      content: attr(data-placeholder);
+      color: #aaa;
     }
   }
 `;
