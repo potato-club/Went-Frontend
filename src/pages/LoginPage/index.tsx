@@ -44,7 +44,7 @@ function LoginPage() {
 
       window.Kakao.Auth.login({
         scope: "account_email",
-        success: async (authObj: { access_token: string }) => {
+        success: async (authObj: { access_token: string; }) => {
           console.log("✅ 카카오 로그인 성공:", authObj);
 
           // ✅ 사용자 정보 요청
