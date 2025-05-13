@@ -7,7 +7,7 @@ import KakaoRedirectPage from './pages/KakaoRedirectPage';
 import MyPage from './pages/MyPage/Mypage';
 import Layout from './components/Layout/Layout';
 import SignUpPage from './pages/SignUpPage';
-
+import ReviewList from './pages/ReviewListPage/ReviewList';
 
 function App() {
   return (
@@ -21,6 +21,7 @@ function App() {
         {/* 헤더를 포함하는 페이지 */}
         <Route element={<Layout/>}>
         <Route path='/mypage' element={<MyPage />} />
+        <Route path='/reviewlist' element={<ReviewList/>}/>
         </Route>
       </Routes>
     </AppWrapper>
