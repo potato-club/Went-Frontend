@@ -4,9 +4,9 @@ import TextAlign from "@tiptap/extension-text-align";
 import Underline from "@tiptap/extension-underline";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import axios from "axios";
 import { useEffect, useRef } from "react";
 import styled from "styled-components";
+import { uploadPhoto } from "../../api/photo";
 
 interface TiptapEditorProps {
   content: string;
@@ -84,16 +84,20 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
     e.target.value = ""; // 동일 파일 재업로드 허용
   };
 
-  const uploadFile = async (file: File): Promise<string | null> => {
+  const uploadFile = async (file: File) => {
     try {
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await axios.post("/api/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = uploadPhoto(formData);
 
-      return res.data.url;
+      // const res = await axios.post("/api/upload", formData, {
+      //   headers: { "Content-Type": "multipart/form-data" },
+      // });
+
+      console.log("✅ 업로드된 파일 URL:", (await res).data.url);
+
+      // return res.data.url;
     } catch (err) {
       console.error("❌ 파일 업로드 실패:", err);
       alert("파일 업로드 중 오류가 발생했습니다.");
