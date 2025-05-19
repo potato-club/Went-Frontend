@@ -5,9 +5,9 @@ import ExistUserPage from "./pages/ExistUserPage";
 import KakaoRedirectPage from "./pages/KakaoRedirectPage";
 import LoginPage from "./pages/LoginPage";
 import MyPage from "./pages/MyPage/Mypage";
-import SignUpPage from "./pages/SignUpPage";
 import WelcomePage from "./pages/WelcomePage";
 import WritePage from "./pages/WritePage";
+import SignUpPage from "./pages/SignupPage";
 
 function App() {
   return (
