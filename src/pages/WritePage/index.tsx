@@ -1,8 +1,10 @@
 import { useState } from "react";
 import styled from "styled-components";
+import TiptapEditor from "../../components/TiptapEditor";
 
 const WritePage = () => {
   const [rating, setRating] = useState(0); // 별점 상태 (0~5)
+  const [editorContent, setEditorContent] = useState("");
 
   const handleClick = (index: number) => {
     // 같은 별 다시 누르면 초기화
@@ -11,6 +13,10 @@ const WritePage = () => {
     } else {
       setRating(index + 1);
     }
+  };
+
+  const handleSubmit = () => {
+    console.log("에디터 내용:", editorContent);
   };
   return (
     <Container>
@@ -52,11 +58,13 @@ const WritePage = () => {
         </OptionBox>
         <Input type="text" placeholder="제목을 입력해주세요." />
       </InputBox>
-      <div>위지윅 에디터 부분</div>
+      {/* <div>위지윅 에디터 부분</div> */}
+      <TiptapEditor content={editorContent} onChange={setEditorContent} />
+
       <ButtonBox>
-        <button>불러오기</button>
-        <button>임시저장</button>
-        <button>등록</button>
+        <WhiteButton>불러오기</WhiteButton>
+        <WhiteButton>임시저장</WhiteButton>
+        <BlackButton onClick={handleSubmit}>등록</BlackButton>
       </ButtonBox>
     </Container>
   );
@@ -65,13 +73,13 @@ const WritePage = () => {
 export default WritePage;
 
 const Container = styled.div`
-  border: 2px solid red;
+  /* border: 2px solid red; */
   margin: 0 140px;
   margin-top: 100px;
 `;
 
 const Title = styled.div`
-  border: 2px solid green;
+  /* border: 2px solid green; */
   font-size: 38px;
   font-style: normal;
   font-weight: 500;
@@ -80,7 +88,7 @@ const Title = styled.div`
 `;
 
 const InputBox = styled.div`
-  border: 2px solid blue;
+  /* border: 2px solid blue; */
 `;
 
 const OptionBox = styled.div`
@@ -91,54 +99,40 @@ const OptionBox = styled.div`
 
 const Select = styled.select`
   width: 30%;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 500;
   border: none;
-  border-bottom: 2px solid black;
-  background: none;
+  border-bottom: 1px solid #e2e2e2;
+  background: url("arrow-down-gray.svg") no-repeat right 10px center;
+  background-size: 16px;
   appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
   padding: 0 20px;
+  outline: none;
 `;
-
-// const Category = styled.div`
-//   border-bottom: 2px solid black;
-//   font-size: 22px;
-//   font-style: normal;
-//   font-weight: 500;
-//   line-height: normal;
-//   width: 30%;
-// `;
-
-// const Media = styled.div`
-//   border-bottom: 2px solid black;
-//   font-size: 22px;
-//   font-style: normal;
-//   font-weight: 500;
-//   line-height: normal;
-//   width: 30%;
-// `;
 
 const StarWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   width: 30%;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 500;
   border: none;
-  border-bottom: 2px solid black;
+  border-bottom: 1px solid #e2e2e2;
   background: none;
   appearance: none;
   padding: 8px;
   text-align: center;
-  gap: 15px;
 
   span {
-    margin-right: 30px;
+    margin-right: 15px;
   }
 `;
 
 const StarButton = styled.button`
+  width: 16%;
   background: transparent;
   border: none;
   padding: 0;
@@ -150,14 +144,43 @@ const StarButton = styled.button`
 `;
 
 const Input = styled.input`
+  width: 96%;
   border: none;
-  font-size: 34px;
+  font-size: 30px;
   font-style: normal;
-  font-weight: 500;
   line-height: normal;
-  padding: 10px;
+  padding: 0 2%;
+  margin: 30px 0;
+  outline: none;
+
+  &::placeholder {
+    color: #e2e2e2;
+  }
 `;
 
 const ButtonBox = styled.div`
   float: right;
+  padding: 40px 0;
+
+  display: flex;
+  gap: 15px;
+`;
+
+const WhiteButton = styled.button`
+  background-color: #fff;
+  color: #1d1d1d;
+  border: 1px solid #1d1d1d;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+`;
+
+const BlackButton = styled.button`
+  background-color: #1d1d1d;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
 `;
