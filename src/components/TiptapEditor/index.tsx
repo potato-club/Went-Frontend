@@ -184,7 +184,8 @@ export default TiptapEditor;
 const EditorWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: 400px; /* 에디터 전체 높이 고정 */
+  /* height: 400px;  */
+  min-height: 400px;
   border: 1px solid #ddd;
   border-radius: 8px;
   overflow: hidden;
