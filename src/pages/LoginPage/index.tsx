@@ -77,6 +77,7 @@ function LoginPage() {
     try {
       console.log("✅ 구글 로그인 응답:", credentialResponse);
       const idToken = credentialResponse.credential;
+      console.log("✅ 구글 ID 토큰:", idToken);
       if (!idToken) {
         alert("구글 인증에 실패했습니다.");
         return;
