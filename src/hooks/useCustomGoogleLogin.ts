@@ -1,6 +1,6 @@
 // src/utils/auth/googleLogin.ts
-import axios from 'axios';
 import { useGoogleLogin } from '@react-oauth/google';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { findUser, registerUser } from '../api/user';
 import { useAuth } from '../contexts/AuthContext';
@@ -10,24 +10,33 @@ export const useCustomGoogleLogin = () => {
   const { setSignUpData } = useAuth();
 
   return useGoogleLogin({
-    flow: 'implicit',
-    onSuccess: async (tokenResponse) => {
-      const { access_token } = tokenResponse;
-
+    flow: 'auth-code',
+    onSuccess: async (codeResponse) => {
       try {
-        const userInfoRes = await axios.get(
-          'https://www.googleapis.com/oauth2/v3/userinfo',
-          {
-            headers: {
-              Authorization: `Bearer ${access_token}`,
-            },
-          }
-        );
+        // 1. 인가 코드 획득
+        const authCode = codeResponse.code;
+        console.log('✅ 구글 Authorization Code:', authCode);
+
+        // 2. 백엔드에 Authorization Code 전달 → 백엔드에서 id_token 발급 처리
+        const tokenRes = await axios.post('/api/auth/google', {
+          code: authCode,
+          redirectUri: process.env.REACT_APP_GOOGLE_REDIRECT_URI, // 백엔드와 일치해야 함
+        });
+
+        const { id_token, access_token } = tokenRes.data;
+        console.log('✅ 받은 id_token:', id_token);
+        console.log('✅ 받은 access_token:', access_token);
+
+        // 3. id_token 디코딩하여 사용자 정보 추출 (선택)
+        const userInfoRes = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+          },
+        });
 
         const userInfo = userInfoRes.data;
-        console.log('구글 사용자 정보:', userInfo);
         const newUserData = {
-          socialKey: access_token?.trim() || '',
+          socialKey: id_token || '',
           email: userInfo.email?.trim() || '',
         };
 
@@ -41,10 +50,7 @@ export const useCustomGoogleLogin = () => {
           const user = res;
 
           const hasMissingFields =
-            !user.nickname ||
-            !user.region ||
-            !user.birthdate ||
-            !user.categoryIds?.length;
+            !user.nickname || !user.region || !user.birthdate || !user.categoryIds?.length;
 
           if (hasMissingFields) {
             navigate('/signUp/1');
@@ -60,13 +66,14 @@ export const useCustomGoogleLogin = () => {
             alert('로그인 중 오류가 발생했습니다.');
           }
         }
-      } catch (err) {
-        console.error('❌ 구글 로그인 오류:', err);
+      } catch (error) {
+        console.error('❌ 구글 로그인 처리 중 오류:', error);
         alert('구글 로그인 중 오류가 발생했습니다.');
       }
     },
-    onError: () => {
-      console.log('구글 로그인 실패');
+    onError: (err) => {
+      console.error('❌ 구글 로그인 실패:', err);
+      alert('구글 로그인에 실패했습니다.');
     },
   });
 };
