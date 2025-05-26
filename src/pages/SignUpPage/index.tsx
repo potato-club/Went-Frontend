@@ -1,0 +1,161 @@
+import styled from "styled-components";
+import { useNavigate, useParams } from "react-router-dom";
+import UserProfileSetupPage from "../../components/UserProfileSetupPage";
+import AdditionalDetailsPage from "../../components/AdditionalDetailsPage";
+import { Title, SubTitle, ChangedComponent } from "../../styles/LayoutStyles";
+import LoginPageWrapper from "../../components/LoginPageWrapper";
+import { useEffect } from "react";
+import Button from "../../components/Button";
+import LoginPageBody from "../../components/LoginPageBody";
+import { useAuth, SignUpData } from "../../contexts/AuthContext";
+import { CATEGORIES } from "../../constants/categories";
+import {
+  ButtonBox,
+  CategoryItem,
+  CategoryList,
+  CategoryWrapper,
+  Form,
+  Input,
+  InputBox,
+  InputWrapper,
+} from "../../styles/FormStyles";
+
+function SignUpPage() {
+  // const { step } = useParams();
+  // const [nickname, setNickname] = useState('');
+  // const [selectedLocation, setSelectedLocation] = useState('');
+  // const [selectedInterests, setSelectedInterests] = useState<string[]>([]); // State for selected interests
+
+  const navigate = useNavigate();
+  const { signUpData, setSignUpData, cleanedSignUpData } = useAuth();
+
+  const nextPage = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    navigate("/welcome");
+  };
+
+  const handleAddress = (address: string) => {
+    setSignUpData((prev: SignUpData) => ({
+      ...prev,
+      region: address,
+    }));
+  };
+
+  const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSignUpData((prev: SignUpData) => ({
+      ...prev,
+      nickname: e.target.value,
+    }));
+  };
+
+  const handleBirthdateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSignUpData((prev: SignUpData) => ({
+      ...prev,
+      birthdate: e.target.value,
+    }));
+  };
+
+  const handleInterestChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value, checked } = e.target;
+    if (checked) {
+      setSignUpData((prev: SignUpData) => ({
+        ...prev,
+        categoryIds: [...prev.categoryIds, value],
+      }));
+    } else {
+      setSignUpData((prev: SignUpData) => ({
+        ...prev,
+        categoryIds: prev.categoryIds.filter((id) => id !== value),
+      }));
+    }
+  };
+
+  const handleCategoryClick = (categoryId: string) => {
+    const isSelected = signUpData.categoryIds.includes(categoryId);
+    setSignUpData((prev: SignUpData) => ({
+      ...prev,
+      categoryIds: isSelected
+        ? prev.categoryIds.filter((id) => id !== categoryId)
+        : [...prev.categoryIds, categoryId],
+    }));
+  };
+
+  useEffect(() => {
+    console.log("signUpData:", signUpData);
+    console.log("cleanedSignUpData:", cleanedSignUpData);
+  }, [signUpData, cleanedSignUpData]);
+
+  return (
+    <LoginPageWrapper>
+      <LoginPageBody>
+        <Title>(), 다녀왔습니다.</Title>
+        <Form onSubmit={nextPage}>
+          <InputWrapper>
+            <InputBox direction="column">
+              <label>닉네임</label>
+              <Input
+                placeholder="사용할 닉네임을 입력해 주세요"
+                value={signUpData.nickname}
+                onChange={handleNicknameChange}
+              />
+            </InputBox>
+
+            <InputBox direction="column">
+              <label>지역</label>
+              <Input placeholder="사는 지역을 입력해 주세요" />
+            </InputBox>
+
+            <InputBox direction="column">
+              <label>생년월일</label>
+              <Input
+                placeholder="생년월일 8자리 (YY/MM/DD)"
+                value={signUpData.birthdate}
+                onChange={handleBirthdateChange}
+              />
+            </InputBox>
+          </InputWrapper>
+
+          <CategoryWrapper>
+            <InputBox direction="column">
+              <label>카테고리 선택 (1개 이상 선택)</label>
+              <CategoryList>
+                {CATEGORIES.map((category) => (
+                  <CategoryItem
+                    key={category.categoryId}
+                    type="button"
+                    selected={signUpData.categoryIds.includes(
+                      category.categoryId
+                    )}
+                    onClick={() => handleCategoryClick(category.categoryId)}
+                  >
+                    {category.koName}
+                    {signUpData.categoryIds.includes(category.categoryId) &&
+                      " ×"}
+                  </CategoryItem>
+                ))}
+              </CategoryList>
+            </InputBox>
+          </CategoryWrapper>
+
+          <ButtonBox>
+            <Button bgColor="#eee">취소</Button>
+            <Button bgColor="#1d1d1d" color="#ffffff" type="submit">
+              가입하기
+            </Button>
+          </ButtonBox>
+        </Form>
+      </LoginPageBody>
+    </LoginPageWrapper>
+  );
+
+  // return (
+  //   <LoginPageWrapper>
+  //     <Title>(), 다녀왔습니다.</Title>
+
+  //     {step === '1' && <UserProfileSetupPage />}
+  //     {step === '2' && <AdditionalDetailsPage />}
+  //   </LoginPageWrapper>
+  // );
+}
+
+export default SignUpPage;
