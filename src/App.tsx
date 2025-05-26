@@ -1,13 +1,14 @@
-import { Route, Routes } from "react-router-dom";
-import styled from "styled-components";
-import Layout from "./components/Layout/Layout";
-import ExistUserPage from "./pages/ExistUserPage";
-import KakaoRedirectPage from "./pages/KakaoRedirectPage";
-import LoginPage from "./pages/LoginPage";
-import MyPage from "./pages/MyPage/Mypage";
-import WelcomePage from "./pages/WelcomePage";
+import { Route, Routes } from 'react-router-dom';
+import styled from 'styled-components';
+import Layout from './components/Layout/Layout';
+import ExistUserPage from './pages/ExistUserPage';
+import KakaoRedirectPage from './pages/KakaoRedirectPage';
+import LoginPage from './pages/LoginPage';
+import MyPage from './pages/MyPage/Mypage';
+import ReviewList from './pages/ReviewListPage/ReviewList';
+import SignUpPage from './pages/SignUpPage';
+import WelcomePage from './pages/WelcomePage';
 import WritePage from "./pages/WritePage";
-import SignUpPage from "./pages/SignUpPage";
 
 function App() {
   return (
@@ -20,7 +21,8 @@ function App() {
         <Route path="/existUser" element={<ExistUserPage />} />
         {/* 헤더를 포함하는 페이지 */}
         <Route element={<Layout />}>
-          <Route path="/mypage" element={<MyPage />} />
+          <Route path='/mypage' element={<MyPage />} />
+          <Route path='/reviewlist' element={<ReviewList />} />
           <Route path="/write" element={<WritePage />} />
         </Route>
       </Routes>
