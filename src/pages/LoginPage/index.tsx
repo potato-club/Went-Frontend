@@ -1,13 +1,12 @@
-import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
-import { useEffect } from "react";
+import { useGoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { findUser } from "../../api/user";
+import googleImg from "../../asset/googleImg.png";
 import kakaoImg from "../../asset/kakaoImg.png";
 import Button from "../../components/Button";
 import LoginPageBody from "../../components/LoginPageBody";
 import LoginPageWrapper from "../../components/LoginPageWrapper";
-import { useAuth } from "../../contexts/AuthContext";
+import { useCustomKakaoLogin } from "../../hooks/useCustomKakaoLogin";
 import { ButtonBox } from "../../styles/FormStyles";
 import { DescriptionBox, Img, Title } from "../../styles/LayoutStyles";
 
@@ -19,85 +18,32 @@ declare global {
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { setSignUpData } = useAuth();
+  // const { setSignUpData } = useAuth();
+
 
   const goToMainPage = () => {
     navigate("/main");
   };
 
-  useEffect(() => {
-    if (!window.Kakao?.isInitialized()) {
-      window.Kakao?.init(process.env.REACT_APP_KAKAO_JAVASCRIPT_KEY);
-    }
-  }, []);
+  const handleKakaoLogin = useCustomKakaoLogin();
 
-  const handleKakaoLogin = async () => {
+  const handleGoogleLogin = async (codeResponse: { code: string; }) => {
     try {
-      if (!window.Kakao) {
-        console.error("카카오 SDK가 로드되지 않았습니다.");
-        return;
-      }
+      console.log("✅ 구글 로그인 응답:", codeResponse);
+      const code = codeResponse.code;
+      console.log("구글 로그인 코드:", code);
 
-      window.Kakao.Auth.login({
-        scope: "account_email",
-        success: async (authObj: { access_token: string; }) => {
-          console.log("✅ 카카오 로그인 성공:", authObj);
-
-          window.Kakao.API.request({
-            url: "/v2/user/me",
-            success: async function (kakaoRes: any) {
-              const email = kakaoRes.kakao_account?.email;
-              console.log("✅ 사용자 이메일:", email);
-
-              const res = await findUser({
-                socialKey: authObj.access_token,
-                email,
-              });
-              console.log("✅ 백엔드 응답:", res);
-              // 이후 로직 필요 시 작성
-            },
-            fail: function (error: any) {
-              console.error("❌ 사용자 정보 요청 실패:", error);
-              alert("사용자 정보를 가져오지 못했습니다.");
-            },
-          });
-        },
-        fail: (err: unknown) => {
-          console.error("❌ 카카오 로그인 실패:", err);
-          alert("카카오 로그인에 실패했습니다.");
-        },
-      });
-    } catch (error) {
-      console.error("❌ 로그인 중 오류:", error);
-      alert("로그인 중 문제가 발생했습니다.");
-    }
-  };
-
-  const handleGoogleLogin = async (credentialResponse: CredentialResponse) => {
-    try {
-      console.log("✅ 구글 로그인 응답:", credentialResponse);
-      const idToken = credentialResponse.credential;
-      if (!idToken) {
-        alert("구글 인증에 실패했습니다.");
-        return;
-      }
-
-      // const decoded: { email: string; sub: string; } = jwtDecode(idToken);
-      // const email = decoded.email;
-
-      // console.log("✅ 구글 로그인 성공, 이메일:", email);
-
-      // const res = await findUser({
-      //   socialKey: idToken,
-      //   email,
-      // });
-      // console.log("✅ 백엔드 응답:", res);
-      // 이후 로직 필요 시 작성
     } catch (error) {
       console.error("❌ 구글 로그인 처리 실패:", error);
       alert("로그인 중 문제가 발생했습니다.");
     }
   };
+
+  const googleLogin = useGoogleLogin({
+    flow: "auth-code",
+    onSuccess: handleGoogleLogin,
+    onError: () => alert("구글 로그인 실패"),
+  });
 
   return (
     <FullPageWrapper>
@@ -112,10 +58,11 @@ function LoginPage() {
               src={kakaoImg}
               onClick={handleKakaoLogin}
             />
-            <GoogleLogin
-              onSuccess={handleGoogleLogin}
-              onError={() => alert("구글 로그인 실패")}
-              useOneTap
+            <Img
+              alt="구글 로그인"
+              src={googleImg}
+              onClick={() => googleLogin()}
+              style={{ cursor: "pointer" }}
             />
           </ImageBoxWrapper>
         </LoginPageBody>
