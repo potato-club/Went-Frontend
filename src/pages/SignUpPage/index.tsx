@@ -1,14 +1,10 @@
-import styled from "styled-components";
-import { useNavigate, useParams } from "react-router-dom";
-import UserProfileSetupPage from "../../components/UserProfileSetupPage";
-import AdditionalDetailsPage from "../../components/AdditionalDetailsPage";
-import { Title, SubTitle, ChangedComponent } from "../../styles/LayoutStyles";
-import LoginPageWrapper from "../../components/LoginPageWrapper";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
 import Button from "../../components/Button";
 import LoginPageBody from "../../components/LoginPageBody";
-import { useAuth, SignUpData } from "../../contexts/AuthContext";
 import { CATEGORIES } from "../../constants/categories";
+import { SignUpData, useAuth } from "../../contexts/AuthContext";
 import {
   ButtonBox,
   CategoryItem,
@@ -19,6 +15,7 @@ import {
   InputBox,
   InputWrapper,
 } from "../../styles/FormStyles";
+import { Title } from "../../styles/LayoutStyles";
 
 function SignUpPage() {
   // const { step } = useParams();
@@ -157,5 +154,18 @@ function SignUpPage() {
   //   </LoginPageWrapper>
   // );
 }
+
+const LoginPageWrapper = styled.div`
+  width: 400px;
+  /* height: 830px; */
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto;
+  justify-content: center;
+  margin-top: 20px;
+  overflow: hidden; /* 스크롤바 숨기기 */
+`;
 
 export default SignUpPage;

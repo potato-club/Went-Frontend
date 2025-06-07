@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, ReactNode, useContext, useState } from 'react';
 import { cleanSignUpData } from '../utils/cleanSignUpData';
 
 export interface SignUpData {
@@ -18,7 +18,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+export const AuthProvider = ({ children }: { children: ReactNode; }) => {
   const [signUpData, setSignUpData] = useState<SignUpData>({
     socialKey: '',
     nickname: '',
