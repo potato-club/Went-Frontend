@@ -1,10 +1,14 @@
 import { useState } from "react";
 import styled from "styled-components";
+import { writePost } from "../../api/write";
 import TiptapEditor from "../../components/TiptapEditor";
+import { CATEGORIES } from "../../constants/categories";
 
 const WritePage = () => {
-  const [rating, setRating] = useState(0); // 별점 상태 (0~5)
+  const [rating, setRating] = useState(0);
   const [editorContent, setEditorContent] = useState("");
+  const [categoryId, setCategoryId] = useState(0);
+  const [title, setTitle] = useState("");
 
   const handleClick = (index: number) => {
     // 같은 별 다시 누르면 초기화
@@ -15,19 +19,41 @@ const WritePage = () => {
     }
   };
 
-  const handleSubmit = () => {
-    console.log("에디터 내용:", editorContent);
+
+  const handleSubmit = async () => {
+    const postData = {
+      // postId, createdAt, viewCount 등은 백엔드에서 자동 생성/관리할 수 있으니 프론트에서는 생략 가능
+      userId: "fronttest", // 문자열로 전달 (백엔드 요구사항에 맞게)
+      content: editorContent,
+      categoryId: categoryId,
+      photoUrls: [], // 이미지 업로드 시 URL 배열로 추가 (현재는 빈 배열)
+      title: title,
+    };
+
+    console.log("등록할 데이터:", postData);
+
+    try {
+      const res = await writePost(postData);
+      console.log("등록 성공:", res);
+      // 성공 후 처리(예: 페이지 이동 등)
+    } catch (error) {
+      console.error("등록 실패:", error);
+      alert("등록에 실패했습니다.");
+    }
   };
+
   return (
     <Container>
       <Title>리뷰 작성</Title>
       <InputBox>
         <OptionBox>
-          <Select>
+          <Select value={categoryId} onChange={e => setCategoryId(Number(e.target.value))}>
             <option value="">카테고리</option>
-            <option value="movie">영화</option>
-            <option value="book">도서</option>
-            <option value="performance">공연</option>
+            {CATEGORIES.map((cat) => (
+              <option key={cat.categoryId} value={cat.categoryId}>
+                {cat.koName}
+              </option>
+            ))}
           </Select>
 
           <Select>
@@ -56,8 +82,12 @@ const WritePage = () => {
             ))}
           </StarWrapper>
         </OptionBox>
-        <Input type="text" placeholder="제목을 입력해주세요." />
-      </InputBox>
+        <Input
+          type="text"
+          placeholder="제목을 입력해주세요."
+          value={title}
+          onChange={e => setTitle(e.target.value)}
+        />      </InputBox>
       {/* <div>위지윅 에디터 부분</div> */}
       <TiptapEditor content={editorContent} onChange={setEditorContent} />
 

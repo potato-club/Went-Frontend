@@ -121,12 +121,12 @@ function SignUpPage() {
                     key={category.categoryId}
                     type="button"
                     selected={signUpData.categoryIds.includes(
-                      category.categoryId
+                      String(category.categoryId)
                     )}
-                    onClick={() => handleCategoryClick(category.categoryId)}
+                    onClick={() => handleCategoryClick(String(category.categoryId))}
                   >
                     {category.koName}
-                    {signUpData.categoryIds.includes(category.categoryId) &&
+                    {signUpData.categoryIds.includes(String(category.categoryId)) &&
                       " ×"}
                   </CategoryItem>
                 ))}
