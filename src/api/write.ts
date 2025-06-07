@@ -8,3 +8,11 @@ export const writePost = async (postData: any) => {
   });
   return response;
 };
+
+export const uploadPhoto = async (data: FormData) => {
+  return await axios.post("/api/posts/images/upload", data, {
+    headers: {
+      "Content-Type": "multipart/form-data"
+    }
+  });
+};
