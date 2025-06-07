@@ -6,7 +6,7 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect, useRef } from "react";
 import styled from "styled-components";
-import { uploadPhoto } from "../../api/photo";
+import { uploadPhoto } from "../../api/write";
 
 interface TiptapEditorProps {
   content: string;
@@ -87,15 +87,26 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
   const uploadFile = async (file: File) => {
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("files", file);
 
-      const res = uploadPhoto(formData);
+      const res = await uploadPhoto(formData);
 
       // const res = await axios.post("/api/upload", formData, {
       //   headers: { "Content-Type": "multipart/form-data" },
       // });
 
-      console.log("✅ 업로드된 파일 URL:", (await res).data.url);
+      console.log("✅ 업로드된 파일 URL:", res.data);
+
+      // 업로드된 이미지 URL을 바로 에디터에 삽입
+      if (file.type.startsWith("image/") && res.data) {
+        editor?.chain().focus().setImage({ src: res.data }).run();
+        return res.data;
+      } else if (file.type.startsWith("video/") && res.data) {
+        const videoTag = `<video src="${res.data}" controls width="100%" />`;
+        editor?.commands.insertContent(videoTag);
+        return res.data;
+      }
+
 
       // return res.data.url;
     } catch (err) {
