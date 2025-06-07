@@ -5,7 +5,6 @@ import googleImg from "../../asset/googleImg.png";
 import kakaoImg from "../../asset/kakaoImg.png";
 import Button from "../../components/Button";
 import LoginPageBody from "../../components/LoginPageBody";
-import LoginPageWrapper from "../../components/LoginPageWrapper";
 import { useCustomKakaoLogin } from "../../hooks/useCustomKakaoLogin";
 import { ButtonBox } from "../../styles/FormStyles";
 import { DescriptionBox, Img, Title } from "../../styles/LayoutStyles";
@@ -102,38 +101,36 @@ function LoginPage() {
   };
 
   return (
-    <FullPageWrapper>
-      <LoginPageWrapper>
-        <Title>(), 다녀왔습니다.</Title>
-        <DescriptionBox>아래의 로그인 방식으로 함께 하세요</DescriptionBox>
+    <LoginPageWrapper>
+      <Title>(), 다녀왔습니다.</Title>
+      <DescriptionBox>아래의 로그인 방식으로 함께 하세요</DescriptionBox>
 
-        <LoginPageBody>
-          <ImageBoxWrapper>
-            <Img
-              alt="카카오 로그인"
-              src={kakaoImg}
-              onClick={handleKakaoLogin}
-            />
-            <Img
-              alt="구글 로그인"
-              src={googleImg}
-            />
-            <GoogleLogin
-              onSuccess={handleGoogleLogin}
-              onError={() => alert("구글 로그인 실패")}
-              useOneTap
-            />
+      <LoginPageBody>
+        <ImageBoxWrapper>
+          <Img
+            alt="카카오 로그인"
+            src={kakaoImg}
+            onClick={handleKakaoLogin}
+          />
+          <Img
+            alt="구글 로그인"
+            src={googleImg}
+          />
+          <GoogleLogin
+            onSuccess={handleGoogleLogin}
+            onError={() => alert("구글 로그인 실패")}
+            useOneTap
+          />
 
-          </ImageBoxWrapper>
-        </LoginPageBody>
+        </ImageBoxWrapper>
+      </LoginPageBody>
 
-        <ButtonBox>
-          <Button color="#fff" bgColor="#1D1D1D" onClick={goToMainPage}>
-            메인 페이지로 이동하기
-          </Button>
-        </ButtonBox>
-      </LoginPageWrapper>
-    </FullPageWrapper>
+      <ButtonBox>
+        <Button color="#fff" bgColor="#1D1D1D" onClick={goToMainPage}>
+          메인 페이지로 이동하기
+        </Button>
+      </ButtonBox>
+    </LoginPageWrapper>
   );
 }
 
@@ -149,11 +146,16 @@ const ImageBoxWrapper = styled.div`
   border-bottom: 1px solid #e2e2e2;
 `;
 
-const FullPageWrapper = styled.div`
-  display: flex;
-  align-items: center;
+const LoginPageWrapper = styled.div`
+  width: 400px;
   height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin: 0 auto;
+  justify-content: center;
+  overflow: hidden; /* 스크롤바 숨기기 */
+  gap: 50px;
 `;
 
 export default LoginPage;
