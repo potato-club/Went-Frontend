@@ -185,7 +185,7 @@ const WritePage = () => {
                   image={rawImage}
                   crop={crop}
                   zoom={zoom}
-                  aspect={5 / 4}
+                  aspect={500 / 393}
                   onCropChange={setCrop}
                   onZoomChange={setZoom}
                   onCropComplete={onCropComplete}
@@ -201,7 +201,7 @@ const WritePage = () => {
                   type="range"
                   value={zoom}
                   min={1}
-                  max={3}
+                  max={5}
                   step={0.1}
                   onChange={(e) => setZoom(Number(e.target.value))}
                 />
@@ -379,8 +379,8 @@ const CropperModal = styled.div`
 `;
 
 const CropperWrapper = styled.div`
-  width: 375px;
-  height: 300px;
+  width: 500px;
+  height: 393px;
   background: #fff;
   border-radius: 12px 12px 0 0;
   overflow: hidden;
@@ -391,7 +391,7 @@ const CropperWrapper = styled.div`
 `;
 
 const CropperButtonBox = styled.div`
-  width: 375px;
+  width: 500px;
   background: #fff;
   border-radius: 0 0 12px 12px;
   display: flex;
