@@ -191,8 +191,21 @@ const WritePage = () => {
                   onCropComplete={onCropComplete}
                   cropShape="rect"
                   showGrid={false}
+                  zoomWithScroll={false} // 스크롤로 줌 비활성화
                 />
               </CropperWrapper>
+              {/* 줌 슬라이더 추가 */}
+              <ZoomSliderBox>
+                <ZoomLabel>크기 조절</ZoomLabel>
+                <ZoomSlider
+                  type="range"
+                  value={zoom}
+                  min={1}
+                  max={3}
+                  step={0.1}
+                  onChange={(e) => setZoom(Number(e.target.value))}
+                />
+              </ZoomSliderBox>
               <CropperButtonBox>
                 <BlackButton type="button" onClick={handleCrop}>자르기 및 업로드</BlackButton>
                 <WhiteButton type="button" onClick={() => setCropperOpen(false)}>취소</WhiteButton>
@@ -386,4 +399,51 @@ const CropperButtonBox = styled.div`
   margin-bottom: 0;
   padding: 16px 0;
   justify-content: center;
+`;
+
+const ZoomSliderBox = styled.div`
+  width: 100%;
+  max-width: 100%;
+  background: #fff;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-sizing: border-box;
+`;
+
+const ZoomLabel = styled.span`
+  font-size: 14px;
+  font-weight: 500;
+  color: #1d1d1d;
+  min-width: 60px;
+  flex-shrink: 0;
+`;
+
+const ZoomSlider = styled.input`
+  flex: 1;
+  min-width: 0; /* flex item이 줄어들 수 있도록 */
+  height: 4px;
+  background: #e2e2e2;
+  border-radius: 2px;
+  outline: none;
+  -webkit-appearance: none;
+  
+  &::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #1d1d1d;
+    cursor: pointer;
+  }
+  
+  &::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #1d1d1d;
+    cursor: pointer;
+    border: none;
+  }
 `;
