@@ -1,6 +1,6 @@
 // src/api/user.ts
-import axios from './axiosInstance';
 import { SignUpData } from '../contexts/AuthContext';
+import axios from './axiosInstance';
 
 interface UserPayload {
   socialKey: string;
@@ -35,4 +35,9 @@ export const updateUser = async (data: SignUpData) => {
   return axios.put(`/api/users/`, payload);
 
   //   return axios.put(`/api/users/${id}`, payload);
+};
+
+export const kakaoLogin = async (code: string) => {
+  const response = await axios.post("/api/auth/kakao", { code });
+  return response;
 };
