@@ -32,12 +32,14 @@ const WritePage = () => {
 
   const handleSubmit = async () => {
     const postData = {
-      userId: "fronttest",
+      userId: "test-key",
       content: editorContent,
       categoryId: categoryId,
       photoUrls: thumbnailUrl ? [thumbnailUrl] : [],
       title: title,
     };
+
+    console.log("📤 글 등록 데이터:", postData);
 
     try {
       const res = await writePost(postData);
@@ -229,8 +231,13 @@ export default WritePage;
 
 // 스타일 컴포넌트는 기존 코드와 동일하게 사용
 const Container = styled.div`
-  margin: 0 140px;
-  margin-top: 100px;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  height: calc(100vh - 60px);
 `;
 
 const Title = styled.div`
