@@ -1,4 +1,3 @@
-import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
 import Underline from "@tiptap/extension-underline";
@@ -6,6 +5,7 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect, useRef } from "react";
 import styled from "styled-components";
+import ImageResize from "tiptap-extension-resize-image";
 import { uploadPhoto } from "../../api/write";
 
 interface TiptapEditorProps {
@@ -21,7 +21,7 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
       StarterKit,
       Underline,
       Link.configure({ openOnClick: false }),
-      Image,
+      ImageResize,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
     ],
     content,
@@ -234,8 +234,52 @@ const EditorContentWrapper = styled.div`
     height: 100%;
     cursor: text;
     box-sizing: border-box;
-
     display: block;
+
+    /* 이미지 기본 스타일 */
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      cursor: pointer;
+      
+      /* 선택된 이미지 스타일 */
+      &.ProseMirror-selectednode {
+        outline: 2px solid #68CEF8;
+        border-radius: 8px;
+      }
+    }
+
+    /* 이미지 리사이즈 핸들 스타일 */
+    .image-resizer {
+      position: relative;
+      display: inline-block;
+      
+      .resize-trigger {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 1;
+      }
+      
+      .resize-handle {
+        position: absolute;
+        background: #68CEF8;
+        border: 2px solid #fff;
+        border-radius: 4px;
+        width: 12px;
+        height: 12px;
+        z-index: 2;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      }
+
+      .resize-handle--nw { top: -6px; left: -6px; cursor: nw-resize; }
+      .resize-handle--ne { top: -6px; right: -6px; cursor: ne-resize; }
+      .resize-handle--sw { bottom: -6px; left: -6px; cursor: sw-resize; }
+      .resize-handle--se { bottom: -6px; right: -6px; cursor: se-resize; }
+    }
 
     &:empty::before {
       content: attr(data-placeholder);
