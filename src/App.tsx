@@ -9,7 +9,7 @@ import MyPage from './pages/MyPage/Mypage';
 import ReviewList from './pages/ReviewListPage/ReviewList';
 import WelcomePage from './pages/WelcomePage';
 import WritePage from "./pages/WritePage";
-import SignUpPage from "./pages/SignupPage";
+import SignUpPage from "./pages/SignUpPage";
 function App() {
   return (
     <AppWrapper>
