@@ -4,12 +4,12 @@ import Layout from './components/Layout/Layout';
 import ExistUserPage from './pages/ExistUserPage';
 import KakaoRedirectPage from './pages/KakaoRedirectPage';
 import LoginPage from './pages/LoginPage';
+import MainPage from './pages/MainPage/MainPage';
 import MyPage from './pages/MyPage/Mypage';
 import ReviewList from './pages/ReviewListPage/ReviewList';
-import SignUpPage from './pages/SignUpPage';
 import WelcomePage from './pages/WelcomePage';
 import WritePage from "./pages/WritePage";
-import MainPage from './pages/MainPage/MainPage';
+import SignUpPage from "./pages/SignUpPage";
 function App() {
   return (
     <AppWrapper>
@@ -21,7 +21,7 @@ function App() {
         <Route path="/existUser" element={<ExistUserPage />} />
         {/* 헤더를 포함하는 페이지 */}
         <Route element={<Layout />}>
-          <Route path='/' element={<MainPage/>}/>
+          <Route path='/' element={<MainPage />} />
           <Route path='/mypage' element={<MyPage />} />
           <Route path='/reviewlist' element={<ReviewList />} />
           <Route path="/write" element={<WritePage />} />
