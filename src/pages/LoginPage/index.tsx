@@ -1,6 +1,7 @@
 import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { googleLogin } from "../../api/user";
 import googleImg from "../../asset/googleImg.png";
 import kakaoImg from "../../asset/kakaoImg.png";
 import Button from "../../components/Button";
@@ -81,6 +82,15 @@ function LoginPage() {
       if (!idToken) {
         alert("구글 인증에 실패했습니다.");
         return;
+      }
+
+      const res = await googleLogin(idToken);
+      console.log("✅ 구글 로그인 백엔드 응답:", res);
+
+      // 로그인 성공 시 루트 경로로 리다이렉트
+      if (res && res.status === 200) {
+        console.log("✅ 구글 로그인 성공! 홈으로 이동합니다.");
+        navigate('/');
       }
 
       // const decoded: { email: string; sub: string; } = jwtDecode(idToken);
