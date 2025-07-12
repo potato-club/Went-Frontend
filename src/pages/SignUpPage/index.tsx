@@ -46,9 +46,30 @@ function SignUpPage() {
   };
 
   const handleBirthdateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+
+    // 숫자와 하이픈만 허용
+    value = value.replace(/[^\d-]/g, '');
+
+    // 최대 10자리까지만 허용 (YYYY-MM-DD 형식)
+    if (value.length > 10) {
+      value = value.slice(0, 10);
+    }
+
+    // 연속된 하이픈 방지
+    value = value.replace(/--+/g, '-');
+
+    // 맨 앞에 하이픈 방지
+    if (value.startsWith('-')) {
+      value = value.slice(1);
+    }
+
+    // 맨 뒤에 하이픈이 여러 개 있으면 하나만 남기기
+    value = value.replace(/-+$/, (match) => match.length > 1 ? '-' : match);
+
     setSignUpData((prev: SignUpData) => ({
       ...prev,
-      birthdate: e.target.value,
+      birthdate: value,
     }));
   };
 
@@ -198,6 +219,53 @@ function SignUpPage() {
     setAddressSuggestions([]);
   };
 
+  // 생년월일 유효성 검증 함수
+  const validateBirthdate = (birthdate: string): boolean => {
+    // 형식 체크 (0000-00-00)
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(birthdate)) {
+      return false;
+    }
+
+    const [year, month, day] = birthdate.split('-').map(Number);
+
+    // 년도 체크 (1900 ~ 현재 년도)
+    const currentYear = new Date().getFullYear();
+    if (year < 1900 || year > currentYear) {
+      return false;
+    }
+
+    // 월 체크 (1 ~ 12)
+    if (month < 1 || month > 12) {
+      return false;
+    }
+
+    // 일 체크
+    const daysInMonth = new Date(year, month, 0).getDate();
+    if (day < 1 || day > daysInMonth) {
+      return false;
+    }
+
+    return true;
+  };
+
+  // 생년월일 에러 메시지 상태
+  const [birthdateError, setBirthdateError] = useState<string>('');
+
+  // 생년월일 유효성 검증
+  const handleBirthdateBlur = () => {
+    if (!signUpData.birthdate) {
+      setBirthdateError('');
+      return;
+    }
+
+    if (!validateBirthdate(signUpData.birthdate)) {
+      setBirthdateError('올바른 생년월일을 입력해주세요 (YYYY-MM-DD)');
+    } else {
+      setBirthdateError('');
+    }
+  };
+
   useEffect(() => {
     console.log("signUpData:", signUpData);
     console.log("cleanedSignUpData:", cleanedSignUpData);
@@ -256,7 +324,10 @@ function SignUpPage() {
                 placeholder="생년월일 8자리 (YYYY-MM-DD)"
                 value={signUpData.birthdate}
                 onChange={handleBirthdateChange}
+                onBlur={handleBirthdateBlur}
+                maxLength={10}
               />
+              {birthdateError && <ErrorMessage>{birthdateError}</ErrorMessage>}
             </InputBox>
           </InputWrapper>
 
@@ -371,6 +442,14 @@ const LoginPageWrapper = styled.div`
 
 const StyledInput = styled(Input)`
   padding-right: 80px; /* 버튼 공간 확보 */
+`;
+
+// 에러 메시지 스타일 컴포넌트
+const ErrorMessage = styled.div`
+  color: #ff4757;
+  font-size: 12px;
+  margin-top: 4px;
+  font-weight: 500;
 `;
 
 export default SignUpPage;
