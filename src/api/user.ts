@@ -53,12 +53,23 @@ export const kakaoLogin = async (code: string) => {
     tokenStorage.setRefreshToken(refreshToken);
   }
 
+  // 사용자 정보 저장 (응답 데이터에서)
+  if (response.data) {
+    const { socialKey, email } = response.data;
+    if (socialKey) {
+      tokenStorage.setSocialKey(socialKey);
+    }
+    if (email) {
+      tokenStorage.setUserEmail(email);
+    }
+  }
+
   return response;
 };
 
 
 export const logout = () => {
-  tokenStorage.clearTokens();
+  tokenStorage.clearAll(); // 모든 정보 삭제로 변경
   // 필요하다면 서버에 로그아웃 요청도 보낼 수 있음
   // return axios.post('/api/auth/logout');
 };
@@ -90,12 +101,24 @@ export const googleLogin = async (idToken: string) => {
     console.log("사용 가능한 헤더들:", Object.keys(response.headers));
   }
 
+  // 토큰 저장
   if (accessToken) {
     tokenStorage.setAccessToken(accessToken);
   }
 
   if (refreshToken) {
     tokenStorage.setRefreshToken(refreshToken);
+  }
+
+  // 사용자 정보 저장 (응답 데이터에서)
+  if (response.data) {
+    const { socialKey, email } = response.data;
+    if (socialKey) {
+      tokenStorage.setSocialKey(socialKey);
+    }
+    if (email) {
+      tokenStorage.setUserEmail(email);
+    }
   }
 
   return response;
