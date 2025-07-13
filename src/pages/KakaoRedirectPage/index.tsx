@@ -6,7 +6,7 @@ import { useAuth } from '../../contexts/AuthContext';
 
 const KakaoRedirectPage = () => {
   const navigate = useNavigate();
-  const { setSignUpData } = useAuth();
+  const { setSignUpData, setCurrentUser } = useAuth();
 
   useEffect(() => {
     const code = new URL(window.location.href).searchParams.get('code');
@@ -18,6 +18,8 @@ const KakaoRedirectPage = () => {
       try {
         // 백엔드에 code 전달하여 사용자 정보 획득
         const kakaoRes = await kakaoLogin(code);
+
+        console.log('카카오 사용자 정보:', kakaoRes);
 
         const { socialKey, nickname, email, birthDate, region } = kakaoRes.data;
 
@@ -33,6 +35,12 @@ const KakaoRedirectPage = () => {
           ...prev,
           ...newUserData,
         }));
+
+        // AuthContext의 현재 사용자 정보도 업데이트
+        setCurrentUser({
+          socialKey: newUserData.socialKey,
+          email: newUserData.email,
+        });
 
         try {
           const res = await findUser({ socialKey: newUserData.socialKey, email: newUserData.email });
@@ -59,7 +67,7 @@ const KakaoRedirectPage = () => {
     };
 
     fetchKakaoUser();
-  }, [navigate, setSignUpData]);
+  }, [navigate, setSignUpData, setCurrentUser]);
 
   return <div>카카오 로그인 중입니다...</div>;
 };
