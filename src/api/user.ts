@@ -39,7 +39,7 @@ export const updateUser = async (data: SignUpData) => {
 };
 
 export const kakaoLogin = async (code: string) => {
-  const response = await axios.post("/api/auth/kakao", { code });
+  const response = await axios.post("/api/oauth/kakao", { code });
 
   // 응답 헤더에서 토큰 추출 및 저장
   const accessToken = response.headers['authorization']?.replace('Bearer ', '');
@@ -75,7 +75,7 @@ export const logout = () => {
 };
 
 export const googleLogin = async (idToken: string) => {
-  const response = await axios.post("/api/auth/google", { idToken });
+  const response = await axios.post("/api/oauth/google", { idToken });
 
   console.log("✅ 구글 로그인 응답:", response);
   console.log("✅ 응답 헤더 전체:", response.headers);
