@@ -1,6 +1,7 @@
 import { createContext, ReactNode, useContext, useState } from 'react';
 import { cleanSignUpData } from '../utils/cleanSignUpData';
 import { tokenStorage } from '../utils/tokenStorage';
+import { UserData, userStorage } from '../utils/userStorage';
 
 export interface SignUpData {
   socialKey: string;
@@ -42,39 +43,47 @@ export const AuthProvider = ({ children }: { children: ReactNode; }) => {
   });
 
   // 세션 스토리지에서 현재 사용자 정보 초기화
-  const [currentUser, setCurrentUserState] = useState<CurrentUser>(() => ({
-    socialKey: tokenStorage.getSocialKey(),
-    email: tokenStorage.getUserEmail(),
-    nickname: tokenStorage.getUserNickName(),
-    isLoggedIn: tokenStorage.isAuthenticated(),
-  }));
+  const [currentUser, setCurrentUserState] = useState<CurrentUser>(() => {
+    const savedUserData = userStorage.getUserData();
+    return savedUserData || {
+      socialKey: null,
+      email: null,
+      nickname: null,
+      isLoggedIn: tokenStorage.isAuthenticated(),
+    };
+  });
 
   const cleanedSignUpData = cleanSignUpData(signUpData);
 
-  // 현재 사용자 정보 설정 (세션 스토리지 + 상태 업데이트)
+  // 현재 사용자 정보 설정 (자동 persist)
   const setCurrentUser = (user: { socialKey: string; email: string; nickname?: string; }) => {
-    tokenStorage.setSocialKey(user.socialKey);
-    tokenStorage.setUserEmail(user.email);
-    if (user.nickname) {
-      tokenStorage.setUserNickName(user.nickname);
-    }
-    setCurrentUserState({
+    const newUserData: UserData = {
       socialKey: user.socialKey,
       email: user.email,
       nickname: user.nickname || null,
       isLoggedIn: true,
-    });
+    };
+
+    // 상태 업데이트
+    setCurrentUserState(newUserData);
+
+    // 세션 스토리지에 자동 저장
+    userStorage.saveUserData(newUserData);
   };
 
-  // 로그아웃 (세션 스토리지 클리어 + 상태 초기화)
+  // 로그아웃 (토큰 + 사용자 정보 클리어)
   const logout = () => {
-    tokenStorage.clearAll();
+    // 상태 초기화
     setCurrentUserState({
       socialKey: null,
       email: null,
       nickname: null,
       isLoggedIn: false,
     });
+
+    // 세션 스토리지 클리어
+    tokenStorage.clearTokens();
+    userStorage.clearUserData();
   };
 
   return (
