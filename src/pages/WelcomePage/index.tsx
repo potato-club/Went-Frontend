@@ -3,22 +3,26 @@ import styled from "styled-components";
 import WentImg from "../../asset/WentLogo.png";
 import Button from "../../components/Button";
 import LoginPageBody from "../../components/LoginPageBody";
+import { useAuth } from "../../contexts/AuthContext";
 import { ButtonBox } from "../../styles/FormStyles";
 import { Title } from "../../styles/LayoutStyles";
 
 function WelcomePage() {
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
 
   const goToMainPage = () => {
-    navigate("/main");
+    navigate("/");
   };
+
+  console.log("WelcomePage - currentUser:", currentUser);
 
   return (
     <WelcomePageWrapper>
       <WelcomePageContent>
         <Title>(), 다녀왔습니다.</Title>
         <SubTitle>
-          <div>(닉네임) 님,</div>
+          <div>{currentUser.nickname || '사용자'} 님,</div>
           <div>회원가입을 환영합니다! 🎉</div>
         </SubTitle>
 

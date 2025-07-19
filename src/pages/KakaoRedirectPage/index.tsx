@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { findUser, kakaoLogin, registerUser } from '../../api/user';
+import { kakaoLogin, registerUser } from '../../api/user';
 import { useAuth } from '../../contexts/AuthContext';
 
 const KakaoRedirectPage = () => {
@@ -21,40 +21,30 @@ const KakaoRedirectPage = () => {
 
         console.log('카카오 사용자 정보:', kakaoRes);
 
-        const { socialKey, nickname, email, birthDate, region } = kakaoRes.data;
-
-        const newUserData = {
-          socialKey: socialKey?.trim() || '',
-          nickname: nickname || '',
-          email: email || '',
-          birthDate: birthDate || '',
-          region: region || '',
-        };
 
         setSignUpData((prev) => ({
           ...prev,
-          ...newUserData,
+          ...kakaoRes.data,
         }));
 
         // AuthContext의 현재 사용자 정보도 업데이트
         setCurrentUser({
-          socialKey: newUserData.socialKey,
-          email: newUserData.email,
+          socialKey: kakaoRes.data.socialKey,
+          email: kakaoRes.data.email,
+          nickname: kakaoRes.data.nickname, // nickName → nickname 통일
         });
 
         try {
-          const res = await findUser({ socialKey: newUserData.socialKey, email: newUserData.email });
-
           const hasMissingFields =
-            !res.nickname ||
-            !res.region ||
-            !res.birthDate ||
-            !res.categoryIds?.length;
+            !kakaoRes.data.nickname ||
+            !kakaoRes.data.region ||
+            !kakaoRes.data.birthDate ||
+            !kakaoRes.data.categoryIds?.length;
 
           navigate(hasMissingFields ? '/signup' : '/');
         } catch (err: any) {
           if (axios.isAxiosError(err) && err.response?.status === 404) {
-            await registerUser({ socialKey: newUserData.socialKey, email: newUserData.email });
+            await registerUser({ socialKey: kakaoRes.data.socialKey, email: kakaoRes.data.email });
             navigate('/signup');
           } else {
             console.error('❌ API Error:', err.response || err.message);
