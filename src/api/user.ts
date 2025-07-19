@@ -33,7 +33,7 @@ export const updateUser = async (data: SignUpData) => {
 
   console.log('✅ 최종 전송 payload:', payload);
 
-  return axios.put(`/api/users/`, payload);
+  return axios.put(`/api/users/profile`, payload);
 
   //   return axios.put(`/api/users/${id}`, payload);
 };
@@ -55,12 +55,15 @@ export const kakaoLogin = async (code: string) => {
 
   // 사용자 정보 저장 (응답 데이터에서)
   if (response.data) {
-    const { socialKey, email } = response.data;
+    const { socialKey, email, nickName } = response.data;
     if (socialKey) {
       tokenStorage.setSocialKey(socialKey);
     }
     if (email) {
       tokenStorage.setUserEmail(email);
+    }
+    if (nickName) {
+      tokenStorage.setUserNickName(nickName);
     }
   }
 
@@ -112,12 +115,15 @@ export const googleLogin = async (idToken: string) => {
 
   // 사용자 정보 저장 (응답 데이터에서)
   if (response.data) {
-    const { socialKey, email } = response.data;
+    const { socialKey, email, nickName } = response.data;
     if (socialKey) {
       tokenStorage.setSocialKey(socialKey);
     }
     if (email) {
       tokenStorage.setUserEmail(email);
+    }
+    if (nickName) {
+      tokenStorage.setUserNickName(nickName);
     }
   }
 
