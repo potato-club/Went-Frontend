@@ -4,7 +4,7 @@ import { tokenStorage } from '../utils/tokenStorage';
 
 export interface SignUpData {
   socialKey: string;
-  nickName: string;
+  nickname: string;
   email: string;
   birthDate?: string;
   region: string;
@@ -15,7 +15,7 @@ export interface SignUpData {
 interface CurrentUser {
   socialKey: string | null;
   email: string | null;
-  nickName: string | null;
+  nickname: string | null;
   isLoggedIn: boolean;
 }
 
@@ -24,7 +24,7 @@ interface AuthContextType {
   cleanedSignUpData: Partial<SignUpData>;
   setSignUpData: React.Dispatch<React.SetStateAction<SignUpData>>;
   currentUser: CurrentUser;
-  setCurrentUser: (user: { socialKey: string; email: string; nickName?: string; }) => void;
+  setCurrentUser: (user: { socialKey: string; email: string; nickname?: string; }) => void;
   logout: () => void;
 }
 
@@ -33,7 +33,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: ReactNode; }) => {
   const [signUpData, setSignUpData] = useState<SignUpData>({
     socialKey: '',
-    nickName: '',
+    nickname: '',
     email: '',
     birthDate: '',
     region: '',
@@ -45,23 +45,23 @@ export const AuthProvider = ({ children }: { children: ReactNode; }) => {
   const [currentUser, setCurrentUserState] = useState<CurrentUser>(() => ({
     socialKey: tokenStorage.getSocialKey(),
     email: tokenStorage.getUserEmail(),
-    nickName: tokenStorage.getUserNickName(),
+    nickname: tokenStorage.getUserNickName(),
     isLoggedIn: tokenStorage.isAuthenticated(),
   }));
 
   const cleanedSignUpData = cleanSignUpData(signUpData);
 
   // 현재 사용자 정보 설정 (세션 스토리지 + 상태 업데이트)
-  const setCurrentUser = (user: { socialKey: string; email: string; nickName?: string; }) => {
+  const setCurrentUser = (user: { socialKey: string; email: string; nickname?: string; }) => {
     tokenStorage.setSocialKey(user.socialKey);
     tokenStorage.setUserEmail(user.email);
-    if (user.nickName) {
-      tokenStorage.setUserNickName(user.nickName);
+    if (user.nickname) {
+      tokenStorage.setUserNickName(user.nickname);
     }
     setCurrentUserState({
       socialKey: user.socialKey,
       email: user.email,
-      nickName: user.nickName || null,
+      nickname: user.nickname || null,
       isLoggedIn: true,
     });
   };
@@ -72,7 +72,7 @@ export const AuthProvider = ({ children }: { children: ReactNode; }) => {
     setCurrentUserState({
       socialKey: null,
       email: null,
-      nickName: null,
+      nickname: null,
       isLoggedIn: false,
     });
   };

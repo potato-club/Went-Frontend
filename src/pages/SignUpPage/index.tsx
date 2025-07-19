@@ -31,7 +31,7 @@ function SignUpPage() {
     e.preventDefault();
 
     // 필수 필드 유효성 검사
-    if (!signUpData.nickName?.trim()) {
+    if (!signUpData.nickname?.trim()) {
       alert('닉네임을 입력해주세요.');
       return;
     }
@@ -84,7 +84,7 @@ function SignUpPage() {
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSignUpData((prev: SignUpData) => ({
       ...prev,
-      nickName: e.target.value,
+      nickname: e.target.value,
     }));
   };
 
@@ -324,7 +324,7 @@ function SignUpPage() {
               <label>닉네임</label>
               <Input
                 placeholder="사용할 닉네임을 입력해 주세요"
-                value={signUpData.nickName}
+                value={signUpData.nickname}
                 onChange={handleNicknameChange}
               />
             </InputBox>

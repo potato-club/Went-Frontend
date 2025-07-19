@@ -6,6 +6,7 @@ import googleImg from "../../asset/googleImg.png";
 import kakaoImg from "../../asset/kakaoImg.png";
 import Button from "../../components/Button";
 import LoginPageBody from "../../components/LoginPageBody";
+import { useAuth } from "../../contexts/AuthContext";
 import { useCustomKakaoLogin } from "../../hooks/useCustomKakaoLogin";
 import { ButtonBox } from "../../styles/FormStyles";
 import { DescriptionBox, Img, Title } from "../../styles/LayoutStyles";
@@ -18,61 +19,13 @@ declare global {
 
 function LoginPage() {
   const navigate = useNavigate();
-  // const { setSignUpData } = useAuth();
+  const { setSignUpData, setCurrentUser } = useAuth();
 
   const goToMainPage = () => {
     navigate("/main");
   };
 
-  // useEffect(() => {
-  //   if (!window.Kakao?.isInitialized()) {
-  //     window.Kakao?.init(process.env.REACT_APP_KAKAO_JAVASCRIPT_KEY);
-  //   }
-  // }, []);
-
   const handleKakaoLogin = useCustomKakaoLogin();
-
-  // const handleKakaoLogin = async () => {
-  //   try {
-  //     if (!window.Kakao) {
-  //       console.error("카카오 SDK가 로드되지 않았습니다.");
-  //       return;
-  //     }
-
-  //     window.Kakao.Auth.login({
-  //       scope: "account_email",
-  //       success: async (authObj: { access_token: string; }) => {
-  //         console.log("✅ 카카오 로그인 성공:", authObj);
-
-  //         window.Kakao.API.request({
-  //           url: "/v2/user/me",
-  //           success: async function (kakaoRes: any) {
-  //             const email = kakaoRes.kakao_account?.email;
-  //             console.log("✅ 사용자 이메일:", email);
-
-  //             const res = await findUser({
-  //               socialKey: authObj.access_token,
-  //               email,
-  //             });
-  //             console.log("✅ 백엔드 응답:", res);
-  //             // 이후 로직 필요 시 작성
-  //           },
-  //           fail: function (error: any) {
-  //             console.error("❌ 사용자 정보 요청 실패:", error);
-  //             alert("사용자 정보를 가져오지 못했습니다.");
-  //           },
-  //         });
-  //       },
-  //       fail: (err: unknown) => {
-  //         console.error("❌ 카카오 로그인 실패:", err);
-  //         alert("카카오 로그인에 실패했습니다.");
-  //       },
-  //     });
-  //   } catch (error) {
-  //     console.error("❌ 로그인 중 오류:", error);
-  //     alert("로그인 중 문제가 발생했습니다.");
-  //   }
-  // };
 
   const handleGoogleLogin = async (credentialResponse: CredentialResponse) => {
     try {
@@ -87,23 +40,39 @@ function LoginPage() {
       const res = await googleLogin(idToken);
       console.log("✅ 구글 로그인 백엔드 응답:", res);
 
-      // 로그인 성공 시 루트 경로로 리다이렉트
       if (res && res.status === 200) {
-        console.log("✅ 구글 로그인 성공! 홈으로 이동합니다.");
-        navigate('/');
+        console.log("✅ 구글 로그인 응답 데이터:", res.data);
+
+        // 회원가입 데이터에 구글 사용자 정보 설정
+        setSignUpData((prev) => ({
+          ...prev,
+          ...res.data,
+        }));
+
+        // AuthContext의 현재 사용자 정보도 업데이트
+        setCurrentUser({
+          socialKey: res.data.socialKey,
+          email: res.data.email,
+          nickname: res.data.nickname, // nickName → nickname 통일
+        });
+
+        // 세션 스토리지 확인용 로그
+        console.log("📦 세션 스토리지 저장 확인:");
+        console.log("- socialKey:", sessionStorage.getItem('socialKey'));
+        console.log("- userEmail:", sessionStorage.getItem('userEmail'));
+        console.log("- userNickName:", sessionStorage.getItem('userNickName'));
+        console.log("- accessToken:", sessionStorage.getItem('accessToken'));
+
+        // 필수 필드가 누락되었는지 확인하여 회원가입 페이지 또는 메인 페이지로 이동
+        const hasMissingFields =
+          !res.data.nickname ||
+          !res.data.region ||
+          !res.data.birthDate ||
+          !res.data.categoryIds?.length;
+
+        console.log("✅ 구글 로그인 성공!", hasMissingFields ? "회원가입 페이지로 이동" : "메인 페이지로 이동");
+        navigate(hasMissingFields ? '/signup' : '/');
       }
-
-      // const decoded: { email: string; sub: string; } = jwtDecode(idToken);
-      // const email = decoded.email;
-
-      // console.log("✅ 구글 로그인 성공, 이메일:", email);
-
-      // const res = await findUser({
-      //   socialKey: idToken,
-      //   email,
-      // });
-      // console.log("✅ 백엔드 응답:", res);
-      // 이후 로직 필요 시 작성
     } catch (error) {
       console.error("❌ 구글 로그인 처리 실패:", error);
       alert("로그인 중 문제가 발생했습니다.");

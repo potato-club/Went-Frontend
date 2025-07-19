@@ -31,7 +31,7 @@ const KakaoRedirectPage = () => {
         setCurrentUser({
           socialKey: kakaoRes.data.socialKey,
           email: kakaoRes.data.email,
-          nickName: kakaoRes.data.nickName,
+          nickname: kakaoRes.data.nickname, // nickName → nickname 통일
         });
 
         try {
