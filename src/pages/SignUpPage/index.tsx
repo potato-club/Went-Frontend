@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { updateUser } from "../../api/user";
 import Button from "../../components/Button";
 import LoginPageBody from "../../components/LoginPageBody";
 import { CATEGORIES } from "../../constants/categories";
@@ -26,9 +27,51 @@ function SignUpPage() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
 
-  const nextPage = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    navigate("/welcome");
+
+    // 필수 필드 유효성 검사
+    if (!signUpData.nickname?.trim()) {
+      alert('닉네임을 입력해주세요.');
+      return;
+    }
+
+    if (!signUpData.region?.trim()) {
+      alert('지역을 입력해주세요.');
+      return;
+    }
+
+    if (!signUpData.birthDate?.trim()) {
+      alert('생년월일을 입력해주세요.');
+      return;
+    }
+
+    if (!validateBirthdate(signUpData.birthDate)) {
+      alert('올바른 생년월일을 입력해주세요.');
+      return;
+    }
+
+    if (signUpData.categoryIds.length === 0) {
+      alert('관심 카테고리를 최소 1개 이상 선택해주세요.');
+      return;
+    }
+
+    try {
+      console.log('회원정보 업데이트 시작:', signUpData);
+
+      // updateUser API 호출
+      await updateUser(signUpData);
+
+      console.log('✅ 회원정보 업데이트 성공');
+      alert('회원가입이 완료되었습니다!');
+
+      // 메인 페이지로 이동
+      navigate("/welcome");
+
+    } catch (error) {
+      console.error('❌ 회원정보 업데이트 실패:', error);
+      alert('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
+    }
   };
 
   const handleAddress = (address: string) => {
@@ -69,7 +112,7 @@ function SignUpPage() {
 
     setSignUpData((prev: SignUpData) => ({
       ...prev,
-      birthdate: value,
+      birthDate: value,
     }));
   };
 
@@ -254,12 +297,12 @@ function SignUpPage() {
 
   // 생년월일 유효성 검증
   const handleBirthdateBlur = () => {
-    if (!signUpData.birthdate) {
+    if (!signUpData.birthDate) {
       setBirthdateError('');
       return;
     }
 
-    if (!validateBirthdate(signUpData.birthdate)) {
+    if (!validateBirthdate(signUpData.birthDate)) {
       setBirthdateError('올바른 생년월일을 입력해주세요 (YYYY-MM-DD)');
     } else {
       setBirthdateError('');
@@ -275,7 +318,7 @@ function SignUpPage() {
     <LoginPageWrapper>
       <LoginPageBody>
         <Title>(), 다녀왔습니다.</Title>
-        <Form onSubmit={nextPage}>
+        <Form onSubmit={handleSubmit}>
           <InputWrapper>
             <InputBox direction="column">
               <label>닉네임</label>
@@ -322,7 +365,7 @@ function SignUpPage() {
               <label>생년월일</label>
               <Input
                 placeholder="생년월일 8자리 (YYYY-MM-DD)"
-                value={signUpData.birthdate}
+                value={signUpData.birthDate}
                 onChange={handleBirthdateChange}
                 onBlur={handleBirthdateBlur}
                 maxLength={10}
