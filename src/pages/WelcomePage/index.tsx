@@ -16,6 +16,8 @@ function WelcomePage() {
   };
 
   console.log("WelcomePage - currentUser:", currentUser);
+  console.log("WelcomePage - nickname:", currentUser.nickname);
+  console.log("WelcomePage - 세션 스토리지 nickname:", sessionStorage.getItem('nickname'));
 
   return (
     <WelcomePageWrapper>
