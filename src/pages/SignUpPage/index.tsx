@@ -20,7 +20,7 @@ import { Title } from "../../styles/LayoutStyles";
 
 function SignUpPage() {
   const navigate = useNavigate();
-  const { signUpData, setSignUpData, cleanedSignUpData } = useAuth();
+  const { signUpData, setSignUpData, cleanedSignUpData, setCurrentUser } = useAuth();
 
   // 주소 검색 관련 state 추가
   const [addressSuggestions, setAddressSuggestions] = useState<string[]>([]);
@@ -63,9 +63,23 @@ function SignUpPage() {
       await updateUser(signUpData);
 
       console.log('✅ 회원정보 업데이트 성공');
+
+      // AuthContext의 currentUser 정보 업데이트
+      setCurrentUser({
+        socialKey: signUpData.socialKey,
+        email: signUpData.email,
+        nickname: signUpData.nickname,
+      });
+
+      console.log('✅ 사용자 정보 업데이트 완료:', {
+        socialKey: signUpData.socialKey,
+        email: signUpData.email,
+        nickname: signUpData.nickname,
+      });
+
       alert('회원가입이 완료되었습니다!');
 
-      // 메인 페이지로 이동
+      // 웰컴 페이지로 이동
       navigate("/welcome");
 
     } catch (error) {

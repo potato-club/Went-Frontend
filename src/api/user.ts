@@ -58,9 +58,8 @@ export const kakaoLogin = async (code: string) => {
 
 
 export const logout = () => {
-  tokenStorage.clearTokens(); // 토큰만 삭제
-  // 필요하다면 서버에 로그아웃 요청도 보낼 수 있음
-  // return axios.post('/api/auth/logout');
+  // 클라이언트 측 토큰 삭제만으로 로그아웃 완료
+  tokenStorage.clearTokens();
 };
 
 export const googleLogin = async (idToken: string) => {

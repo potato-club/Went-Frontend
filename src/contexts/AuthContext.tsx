@@ -1,4 +1,5 @@
 import { createContext, ReactNode, useContext, useState } from 'react';
+import { logout as apiLogout } from '../api/user';
 import { cleanSignUpData } from '../utils/cleanSignUpData';
 import { tokenStorage } from '../utils/tokenStorage';
 import { UserData, userStorage } from '../utils/userStorage';
@@ -71,9 +72,12 @@ export const AuthProvider = ({ children }: { children: ReactNode; }) => {
     userStorage.saveUserData(newUserData);
   };
 
-  // 로그아웃 (토큰 + 사용자 정보 클리어)
+  // 로그아웃 (API 호출 + 상태 클리어)
   const logout = () => {
-    // 상태 초기화
+    // API 레벨에서 토큰 삭제
+    apiLogout();
+
+    // AuthContext 상태 클리어 (사용자 정보)
     setCurrentUserState({
       socialKey: null,
       email: null,
@@ -81,8 +85,7 @@ export const AuthProvider = ({ children }: { children: ReactNode; }) => {
       isLoggedIn: false,
     });
 
-    // 세션 스토리지 클리어
-    tokenStorage.clearTokens();
+    // 사용자 정보 세션 스토리지 클리어
     userStorage.clearUserData();
   };
 
