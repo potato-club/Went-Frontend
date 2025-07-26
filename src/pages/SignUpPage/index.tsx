@@ -1,83 +1,70 @@
-import styled from "styled-components";
-import { useNavigate, useParams } from "react-router-dom";
-import UserProfileSetupPage from "../../components/UserProfileSetupPage";
-import AdditionalDetailsPage from "../../components/AdditionalDetailsPage";
-import { Title, SubTitle, ChangedComponent } from "../../styles/LayoutStyles";
-import LoginPageWrapper from "../../components/LoginPageWrapper";
 import { useEffect } from "react";
-import Button from "../../components/Button";
+import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
+import { updateUser } from "../../api/user";
 import LoginPageBody from "../../components/LoginPageBody";
-import { useAuth, SignUpData } from "../../contexts/AuthContext";
-import { CATEGORIES } from "../../constants/categories";
-import {
-  ButtonBox,
-  CategoryItem,
-  CategoryList,
-  CategoryWrapper,
-  Form,
-  Input,
-  InputBox,
-  InputWrapper,
-} from "../../styles/FormStyles";
+import UserProfileForm from "../../components/UserProfileForm";
+import { useAuth } from "../../contexts/AuthContext";
+import { Title } from "../../styles/LayoutStyles";
 
 function SignUpPage() {
-  // const { step } = useParams();
-  // const [nickname, setNickname] = useState('');
-  // const [selectedLocation, setSelectedLocation] = useState('');
-  // const [selectedInterests, setSelectedInterests] = useState<string[]>([]); // State for selected interests
-
   const navigate = useNavigate();
-  const { signUpData, setSignUpData, cleanedSignUpData } = useAuth();
+  const { signUpData, setSignUpData, cleanedSignUpData, setCurrentUser } = useAuth();
 
-  const nextPage = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    navigate("/welcome");
-  };
 
-  const handleAddress = (address: string) => {
-    setSignUpData((prev: SignUpData) => ({
-      ...prev,
-      region: address,
-    }));
-  };
-
-  const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSignUpData((prev: SignUpData) => ({
-      ...prev,
-      nickname: e.target.value,
-    }));
-  };
-
-  const handleBirthdateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSignUpData((prev: SignUpData) => ({
-      ...prev,
-      birthdate: e.target.value,
-    }));
-  };
-
-  const handleInterestChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value, checked } = e.target;
-    if (checked) {
-      setSignUpData((prev: SignUpData) => ({
-        ...prev,
-        categoryIds: [...prev.categoryIds, value],
-      }));
-    } else {
-      setSignUpData((prev: SignUpData) => ({
-        ...prev,
-        categoryIds: prev.categoryIds.filter((id) => id !== value),
-      }));
+    // 필수 필드 유효성 검사
+    if (!signUpData.nickname?.trim()) {
+      alert('닉네임을 입력해주세요.');
+      return;
     }
-  };
 
-  const handleCategoryClick = (categoryId: string) => {
-    const isSelected = signUpData.categoryIds.includes(categoryId);
-    setSignUpData((prev: SignUpData) => ({
-      ...prev,
-      categoryIds: isSelected
-        ? prev.categoryIds.filter((id) => id !== categoryId)
-        : [...prev.categoryIds, categoryId],
-    }));
+    if (!signUpData.region?.trim()) {
+      alert('지역을 입력해주세요.');
+      return;
+    }
+
+    if (!signUpData.birthDate?.trim()) {
+      alert('생년월일을 입력해주세요.');
+      return;
+    }
+
+    if (signUpData.categoryIds.length === 0) {
+      alert('관심 카테고리를 최소 1개 이상 선택해주세요.');
+      return;
+    }
+
+    try {
+      console.log('회원정보 업데이트 시작:', signUpData);
+
+      // updateUser API 호출
+      await updateUser(signUpData);
+
+      console.log('✅ 회원정보 업데이트 성공');
+
+      // AuthContext의 currentUser 정보 업데이트
+      setCurrentUser({
+        socialKey: signUpData.socialKey,
+        email: signUpData.email,
+        nickname: signUpData.nickname,
+      });
+
+      console.log('✅ 사용자 정보 업데이트 완료:', {
+        socialKey: signUpData.socialKey,
+        email: signUpData.email,
+        nickname: signUpData.nickname,
+      });
+
+      alert('회원가입이 완료되었습니다!');
+
+      // 웰컴 페이지로 이동
+      navigate("/welcome");
+
+    } catch (error) {
+      console.error('❌ 회원정보 업데이트 실패:', error);
+      alert('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
+    }
   };
 
   useEffect(() => {
@@ -86,76 +73,32 @@ function SignUpPage() {
   }, [signUpData, cleanedSignUpData]);
 
   return (
-    <LoginPageWrapper>
+    <SignUpPageWrapper>
       <LoginPageBody>
         <Title>(), 다녀왔습니다.</Title>
-        <Form onSubmit={nextPage}>
-          <InputWrapper>
-            <InputBox direction="column">
-              <label>닉네임</label>
-              <Input
-                placeholder="사용할 닉네임을 입력해 주세요"
-                value={signUpData.nickname}
-                onChange={handleNicknameChange}
-              />
-            </InputBox>
-
-            <InputBox direction="column">
-              <label>지역</label>
-              <Input placeholder="사는 지역을 입력해 주세요" />
-            </InputBox>
-
-            <InputBox direction="column">
-              <label>생년월일</label>
-              <Input
-                placeholder="생년월일 8자리 (YY/MM/DD)"
-                value={signUpData.birthdate}
-                onChange={handleBirthdateChange}
-              />
-            </InputBox>
-          </InputWrapper>
-
-          <CategoryWrapper>
-            <InputBox direction="column">
-              <label>카테고리 선택 (1개 이상 선택)</label>
-              <CategoryList>
-                {CATEGORIES.map((category) => (
-                  <CategoryItem
-                    key={category.categoryId}
-                    type="button"
-                    selected={signUpData.categoryIds.includes(
-                      category.categoryId
-                    )}
-                    onClick={() => handleCategoryClick(category.categoryId)}
-                  >
-                    {category.koName}
-                    {signUpData.categoryIds.includes(category.categoryId) &&
-                      " ×"}
-                  </CategoryItem>
-                ))}
-              </CategoryList>
-            </InputBox>
-          </CategoryWrapper>
-
-          <ButtonBox>
-            <Button bgColor="#eee">취소</Button>
-            <Button bgColor="#1d1d1d" color="#ffffff" type="submit">
-              가입하기
-            </Button>
-          </ButtonBox>
-        </Form>
+        <UserProfileForm
+          formData={signUpData}
+          onFormDataChange={setSignUpData}
+          onSubmit={handleSubmit}
+          submitButtonText="가입하기"
+          cancelButtonText="취소"
+          showCancelButton={true}
+        />
       </LoginPageBody>
-    </LoginPageWrapper>
+    </SignUpPageWrapper>
   );
-
-  // return (
-  //   <LoginPageWrapper>
-  //     <Title>(), 다녀왔습니다.</Title>
-
-  //     {step === '1' && <UserProfileSetupPage />}
-  //     {step === '2' && <AdditionalDetailsPage />}
-  //   </LoginPageWrapper>
-  // );
 }
+
+const SignUpPageWrapper = styled.div`
+  width: 400px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto;
+  justify-content: center;
+  margin-top: 20px;
+  overflow: hidden;
+`;
 
 export default SignUpPage;

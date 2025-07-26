@@ -1,4 +1,3 @@
-import { AuthProvider } from "./../contexts/AuthContext";
 // src/styles/FormStyles.ts
 import styled from "styled-components";
 

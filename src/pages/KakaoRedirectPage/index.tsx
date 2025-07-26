@@ -1,71 +1,51 @@
+import axios from 'axios';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { kakaoLogin, registerUser } from '../../api/user';
 import { useAuth } from '../../contexts/AuthContext';
-import { findUser, registerUser } from '../../api/user';
 
 const KakaoRedirectPage = () => {
   const navigate = useNavigate();
-  const { setSignUpData } = useAuth();
+  const { setSignUpData, setCurrentUser } = useAuth();
 
   useEffect(() => {
     const code = new URL(window.location.href).searchParams.get('code');
     if (!code) return;
 
+    console.log('카카오 로그인 코드:', code);
+
     const fetchKakaoUser = async () => {
       try {
-        // 토큰 발급 요청
-        const tokenRes = await axios.post(
-          'https://kauth.kakao.com/oauth/token',
-          new URLSearchParams({
-            grant_type: 'authorization_code',
-            client_id: process.env.REACT_APP_KAKAO_REST_API_KEY!,
-            redirect_uri: process.env.REACT_APP_KAKAO_REDIRECT_URI!,
-            code,
-          }),
-          {
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          }
-        );
+        // 백엔드에 code 전달하여 사용자 정보 획득
+        const kakaoRes = await kakaoLogin(code);
 
-        const access_token = tokenRes.data.access_token;
+        console.log('카카오 사용자 정보:', kakaoRes);
 
-        // 사용자 정보 요청
-        const userInfoRes = await axios.get(
-          'https://kapi.kakao.com/v2/user/me',
-          {
-            headers: { Authorization: `Bearer ${access_token}` },
-          }
-        );
-
-        const kakaoAccount = userInfoRes.data.kakao_account;
-
-        console.log('카카오 사용자 정보:', userInfoRes);
-
-        const newUserData = {
-          socialKey: access_token?.trim() || '',
-          email: kakaoAccount.email || '',
-        };
 
         setSignUpData((prev) => ({
           ...prev,
-          ...newUserData,
+          ...kakaoRes.data,
         }));
 
+        // AuthContext의 현재 사용자 정보도 업데이트
+        setCurrentUser({
+          socialKey: kakaoRes.data.socialKey,
+          email: kakaoRes.data.email,
+          nickname: kakaoRes.data.nickname, // nickName → nickname 통일
+        });
+
         try {
-          const res = await findUser(newUserData);
-
           const hasMissingFields =
-            !res.nickname ||
-            !res.region ||
-            !res.birthdate ||
-            !res.categoryIds?.length;
+            !kakaoRes.data.nickname ||
+            !kakaoRes.data.region ||
+            !kakaoRes.data.birthDate ||
+            !kakaoRes.data.categoryIds?.length;
 
-          navigate(hasMissingFields ? '/signUp/1' : '/');
+          navigate(hasMissingFields ? '/signup' : '/');
         } catch (err: any) {
           if (axios.isAxiosError(err) && err.response?.status === 404) {
-            await registerUser(newUserData);
-            navigate('/signUp/1');
+            await registerUser({ socialKey: kakaoRes.data.socialKey, email: kakaoRes.data.email });
+            navigate('/signup');
           } else {
             console.error('❌ API Error:', err.response || err.message);
             alert('로그인 중 오류가 발생했습니다.');
@@ -77,7 +57,7 @@ const KakaoRedirectPage = () => {
     };
 
     fetchKakaoUser();
-  }, [navigate, setSignUpData]);
+  }, [navigate, setSignUpData, setCurrentUser]);
 
   return <div>카카오 로그인 중입니다...</div>;
 };
