@@ -10,6 +10,7 @@ import ReviewList from './pages/ReviewListPage/ReviewList';
 import SignUpPage from "./pages/SignUpPage";
 import WelcomePage from './pages/WelcomePage';
 import WritePage from "./pages/WritePage";
+import EditProfilePage from "./pages/EditProfilePage";
 function App() {
   return (
     <AppWrapper>
@@ -25,6 +26,7 @@ function App() {
           <Route path='/mypage' element={<MyPage />} />
           <Route path='/reviewlist' element={<ReviewList />} />
           <Route path="/write" element={<WritePage />} />
+          <Route path="/edit-profile" element={<EditProfilePage />} />
         </Route>
       </Routes>
     </AppWrapper>
