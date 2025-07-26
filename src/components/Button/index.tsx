@@ -16,7 +16,13 @@ const Button = styled.button<ButtonProps>`
   font-size: 18px;
   border: ${(props) => (props.bgColor ? "none" : "1px solid #E2E2E2")};
   /* margin-bottom: 10%; */
-  cursor: pointer;
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+  opacity: ${(props) => (props.disabled ? "0.6" : "1")};
+  
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
 `;
 
 export default Button;
