@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { updateUser } from "../../api/user";
+import { getUserProfile, updateUser } from "../../api/user";
 import LoginPageBody from "../../components/LoginPageBody";
 import UserProfileForm from "../../components/UserProfileForm";
 import { SignUpData, useAuth } from "../../contexts/AuthContext";
@@ -10,6 +10,8 @@ import { Title } from "../../styles/LayoutStyles";
 function EditProfilePage() {
   const navigate = useNavigate();
   const { currentUser, setCurrentUser } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
+  const [originalData, setOriginalData] = useState<SignUpData | null>(null);
 
   // 현재 사용자 정보로 폼 데이터 초기화
   const [formData, setFormData] = useState<SignUpData>({
@@ -23,33 +25,88 @@ function EditProfilePage() {
   });
 
   console.log('EditProfilePage currentUser:', currentUser);
+  console.log('EditProfilePage formData:', formData);
+  console.log('EditProfilePage originalData:', originalData);
+
+  // 변경사항이 있는지 확인하는 함수
+  const hasChanges = () => {
+    if (!originalData) return false;
+
+    return (
+      formData.nickname !== originalData.nickname ||
+      formData.birthDate !== originalData.birthDate ||
+      formData.region !== originalData.region ||
+      formData.profileImageUrl !== originalData.profileImageUrl ||
+      JSON.stringify(formData.categoryIds.sort()) !== JSON.stringify(originalData.categoryIds.sort())
+    );
+  };
 
   // 사용자 정보가 없으면 로그인 페이지로 리다이렉트
   useEffect(() => {
     if (!currentUser.isLoggedIn) {
       alert('로그인이 필요한 서비스입니다.');
       navigate('/login');
-      return;
     }
   }, [currentUser.isLoggedIn, navigate]);
 
-  // currentUser 정보가 변경될 때 formData 업데이트
+  // 실제 사용자 프로필 정보 불러오기 (한 번만 실행)
   useEffect(() => {
-    if (currentUser.isLoggedIn) {
-      setFormData({
-        socialKey: currentUser.socialKey || '',
-        nickname: currentUser.nickname || '',
-        email: currentUser.email || '',
-        birthDate: currentUser.birthDate || '',
-        region: currentUser.region || '',
-        categoryIds: currentUser.categoryIds || [],
-        profileImageUrl: currentUser.profileImageUrl || '',
-      });
-    }
-  }, [currentUser]);
+    if (!currentUser.isLoggedIn) return;
+
+    const loadUserProfile = async () => {
+      try {
+        setIsLoading(true);
+        console.log('📡 사용자 프로필 정보 조회 시작...');
+
+        const profileData = await getUserProfile();
+        console.log('✅ 사용자 프로필 정보 조회 성공:', profileData);
+
+        // categoryIds를 문자열 배열로 변환 (API에서 숫자로 올 수 있음)
+        const formattedData: SignUpData = {
+          socialKey: profileData.socialKey || currentUser.socialKey || '',
+          nickname: profileData.nickname || '',
+          email: profileData.email || currentUser.email || '',
+          birthDate: profileData.birthDate || '',
+          region: profileData.region || '',
+          categoryIds: profileData.categories ? profileData.categories.map((cat: any) => cat.id.toString()) : [],
+          profileImageUrl: profileData.profileImageUrl || '',
+        };
+
+        setFormData(formattedData);
+        setOriginalData(formattedData); // 원본 데이터 저장
+
+        // AuthContext의 currentUser도 업데이트
+        setCurrentUser({
+          socialKey: formattedData.socialKey,
+          email: formattedData.email,
+          nickname: formattedData.nickname,
+          birthDate: formattedData.birthDate,
+          region: formattedData.region,
+          categoryIds: formattedData.categoryIds,
+          profileImageUrl: formattedData.profileImageUrl,
+        });
+
+      } catch (error) {
+        console.error('❌ 사용자 프로필 정보 조회 실패:', error);
+        // API 실패 시 현재 AuthContext의 정보를 사용
+        alert('프로필 정보를 불러오는데 실패했습니다. 기본 정보로 진행합니다.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadUserProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // 빈 의존성 배열로 한 번만 실행
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // 변경사항이 없으면 API 호출하지 않음
+    if (!hasChanges()) {
+      alert('변경된 내용이 없습니다.');
+      return;
+    }
 
     // 필수 필드 유효성 검사
     if (!formData.nickname?.trim()) {
@@ -91,6 +148,9 @@ function EditProfilePage() {
         profileImageUrl: formData.profileImageUrl,
       });
 
+      // 원본 데이터도 업데이트
+      setOriginalData(formData);
+
       console.log('✅ 사용자 정보 업데이트 완료:', {
         socialKey: formData.socialKey,
         email: formData.email,
@@ -112,18 +172,30 @@ function EditProfilePage() {
     navigate(-1); // 이전 페이지로 돌아가기
   };
 
+  // 로딩 중일 때 표시
+  if (isLoading) {
+    return (
+      <EditProfilePageWrapper>
+        <LoginPageBody>
+          <Title>프로필 수정</Title>
+          <LoadingMessage>프로필 정보를 불러오는 중...</LoadingMessage>
+        </LoginPageBody>
+      </EditProfilePageWrapper>
+    );
+  }
+
   return (
     <EditProfilePageWrapper>
       <LoginPageBody>
-        <Title>프로필 수정</Title>
         <UserProfileForm
           formData={formData}
           onFormDataChange={setFormData}
           onSubmit={handleSubmit}
-          submitButtonText="수정하기"
+          submitButtonText={hasChanges() ? "수정하기" : "변경사항 없음"}
           cancelButtonText="취소"
           onCancel={handleCancel}
           showCancelButton={true}
+          isSubmitDisabled={!hasChanges()}
         />
       </LoginPageBody>
     </EditProfilePageWrapper>
@@ -140,6 +212,13 @@ const EditProfilePageWrapper = styled.div`
   justify-content: center;
   margin-top: 20px;
   overflow: hidden;
+`;
+
+const LoadingMessage = styled.div`
+  text-align: center;
+  color: #666;
+  font-size: 16px;
+  padding: 40px 20px;
 `;
 
 export default EditProfilePage;

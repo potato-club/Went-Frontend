@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import styled from "styled-components";
+import { uploadPhoto } from "../../api/write";
 import { CATEGORIES } from "../../constants/categories";
 import { SignUpData } from "../../contexts/AuthContext";
 import {
@@ -22,6 +23,7 @@ interface UserProfileFormProps {
   cancelButtonText?: string;
   onCancel?: () => void;
   showCancelButton?: boolean;
+  isSubmitDisabled?: boolean;
 }
 
 function UserProfileForm({
@@ -32,6 +34,7 @@ function UserProfileForm({
   cancelButtonText = "취소",
   onCancel,
   showCancelButton = true,
+  isSubmitDisabled = false,
 }: UserProfileFormProps) {
   // 주소 검색 관련 state
   const [addressSuggestions, setAddressSuggestions] = useState<string[]>([]);
@@ -41,11 +44,96 @@ function UserProfileForm({
   // 생년월일 에러 메시지 상태
   const [birthdateError, setBirthdateError] = useState<string>('');
 
+  // 이미지 업로드 관련 state
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isImageUploading, setIsImageUploading] = useState(false);
+
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onFormDataChange((prev: SignUpData) => ({
       ...prev,
       nickname: e.target.value,
     }));
+  };
+
+  // 프로필 이미지 클릭 핸들러
+  const handleProfileImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  // 이미지 파일 선택 핸들러
+  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // 파일 크기 체크 (예: 5MB 제한)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('이미지 파일 크기는 5MB 이하여야 합니다.');
+      return;
+    }
+
+    // 파일 형식 체크
+    if (!file.type.startsWith('image/')) {
+      alert('이미지 파일만 업로드 가능합니다.');
+      return;
+    }
+
+    try {
+      setIsImageUploading(true);
+      console.log('🖼️ 이미지 업로드 시작:', file.name);
+
+      // FormData 생성
+      const formData = new FormData();
+      formData.append('files', file);
+
+      console.log('📤 FormData 내용:', formData.get('files'));
+
+      // 이미지 업로드 API 호출
+      const response = await uploadPhoto(formData);
+      console.log('📥 서버 응답 전체:', response);
+      console.log('📥 서버 응답 데이터:', response.data);
+
+      // 응답 구조에 따라 URL 추출 방법을 조정
+      let imageUrl = '';
+      if (Array.isArray(response.data) && response.data.length > 0) {
+        // 배열 형태의 응답에서 첫 번째 URL 가져오기
+        imageUrl = response.data[0];
+      } else if (response.data.url) {
+        imageUrl = response.data.url;
+      } else if (response.data.imageUrl) {
+        imageUrl = response.data.imageUrl;
+      } else if (response.data.data && response.data.data.url) {
+        imageUrl = response.data.data.url;
+      } else if (typeof response.data === 'string') {
+        imageUrl = response.data;
+      } else {
+        console.warn('⚠️ 예상과 다른 응답 구조:', response.data);
+        throw new Error('이미지 URL을 찾을 수 없습니다.');
+      }
+
+      console.log('✅ 추출된 이미지 URL:', imageUrl);
+
+      // formData에 업로드된 이미지 URL 설정
+      onFormDataChange((prev: SignUpData) => {
+        const updated = {
+          ...prev,
+          profileImageUrl: imageUrl,
+        };
+        console.log('🔄 formData 업데이트:', updated);
+        return updated;
+      });
+
+      alert('프로필 이미지가 업로드되었습니다!');
+    } catch (error: any) {
+      console.error('❌ 이미지 업로드 실패:', error);
+      console.error('❌ 에러 상세:', error.response?.data || error.message);
+      alert('이미지 업로드에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsImageUploading(false);
+      // 파일 입력 초기화
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
   };
 
   const handleBirthdateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -253,6 +341,34 @@ function UserProfileForm({
 
   return (
     <Form onSubmit={onSubmit}>
+      {/* 프로필 이미지 섹션 */}
+      <ProfileHeader>
+        <ProfileImageContainer onClick={handleProfileImageClick}>
+          <ProfileImage
+            src={formData.profileImageUrl || '/logo192.png'}
+            alt="프로필 사진"
+            onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+              const target = e.target as HTMLImageElement;
+              target.src = '/logo192.png'; // 기본 이미지로 대체
+            }}
+          />
+          <ProfileImageOverlay>
+            {isImageUploading ? (
+              <UploadingText>업로드중...</UploadingText>
+            ) : (
+              <CameraIcon>📷</CameraIcon>
+            )}
+          </ProfileImageOverlay>
+        </ProfileImageContainer>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleImageFileChange}
+          style={{ display: 'none' }}
+        />
+      </ProfileHeader>
+
       <InputWrapper>
         <InputBox direction="column">
           <label>닉네임</label>
@@ -336,7 +452,12 @@ function UserProfileForm({
             {cancelButtonText}
           </Button>
         )}
-        <Button bgColor="#1d1d1d" color="#ffffff" type="submit">
+        <Button
+          bgColor={isSubmitDisabled ? "#ccc" : "#1d1d1d"}
+          color="#ffffff"
+          type="submit"
+          disabled={isSubmitDisabled}
+        >
           {submitButtonText}
         </Button>
       </ButtonBox>
@@ -417,5 +538,65 @@ const ErrorMessage = styled.div`
   margin-top: 4px;
   font-weight: 500;
 `;
+
+// 프로필 이미지 관련 스타일 컴포넌트들
+const ProfileHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const ProfileImageContainer = styled.div`
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #e9ecef;
+  
+  &:hover {
+    border-color: #007bff;
+  }
+  
+  &:hover > div {
+    opacity: 1;
+  }
+`;
+
+const ProfileImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+`;
+
+const ProfileImageOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 50%;
+`;
+
+const CameraIcon = styled.span`
+  font-size: 24px;
+  color: white;
+`;
+
+const UploadingText = styled.span`
+  font-size: 14px;
+  color: white;
+  font-weight: 500;
+`;
+
 
 export default UserProfileForm;
