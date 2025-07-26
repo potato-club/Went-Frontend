@@ -113,10 +113,10 @@ export const InputWrapper = styled.div`
 
 export const Form = styled.form`
   width: 100%;
-  height: 680px;
+  height: 750px;
   display: flex;
   flex-direction: column;
-  margin-top: 100px;
+  /* margin-top: 100px; */
   gap: 20px;
 
   /* justify-content: center; */

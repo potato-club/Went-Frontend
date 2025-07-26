@@ -38,6 +38,12 @@ export const updateUser = async (data: SignUpData) => {
   //   return axios.put(`/api/users/${id}`, payload);
 };
 
+// 내 정보 조회 API
+export const getUserProfile = async () => {
+  const response = await axios.get('/api/users/me');
+  return response.data;
+};
+
 export const kakaoLogin = async (code: string) => {
   const response = await axios.post("/api/oauth/kakao", { code });
 
