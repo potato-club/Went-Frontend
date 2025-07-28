@@ -3,7 +3,7 @@ import TextAlign from "@tiptap/extension-text-align";
 import Underline from "@tiptap/extension-underline";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import ImageResize from "tiptap-extension-resize-image";
 import { uploadPhoto } from "../../api/write";
@@ -15,6 +15,36 @@ interface TiptapEditorProps {
 
 const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const uploadFile = useCallback(async (file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append("files", file);
+
+      const res = await uploadPhoto(formData);
+
+      console.log("✅ 업로드된 파일 응답:", res.data);
+
+      // 배열 형태의 응답에서 첫 번째 URL 추출
+      let fileUrl = '';
+      if (Array.isArray(res.data) && res.data.length > 0) {
+        fileUrl = res.data[0];
+      } else if (typeof res.data === 'string') {
+        fileUrl = res.data;
+      } else {
+        console.error("❌ 예상과 다른 응답 형태:", res.data);
+        return null;
+      }
+
+      console.log("✅ 추출된 파일 URL:", fileUrl);
+
+      return fileUrl;
+    } catch (err) {
+      console.error("❌ 파일 업로드 실패:", err);
+      alert("파일 업로드 중 오류가 발생했습니다.");
+      return null;
+    }
+  }, []);
 
   const editor = useEditor({
     extensions: [
@@ -61,7 +91,7 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
     dom.addEventListener("drop", handleDrop);
 
     return () => dom.removeEventListener("drop", handleDrop);
-  }, [editor]);
+  }, [editor, uploadFile]);
 
   const handleLocalUpload = () => {
     fileInputRef.current?.click();
@@ -82,38 +112,6 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
     }
 
     e.target.value = ""; // 동일 파일 재업로드 허용
-  };
-
-  const uploadFile = async (file: File) => {
-    try {
-      const formData = new FormData();
-      formData.append("files", file);
-
-      const res = await uploadPhoto(formData);
-
-      // const res = await axios.post("/api/upload", formData, {
-      //   headers: { "Content-Type": "multipart/form-data" },
-      // });
-
-      console.log("✅ 업로드된 파일 URL:", res.data);
-
-      // 업로드된 이미지 URL을 바로 에디터에 삽입
-      if (file.type.startsWith("image/") && res.data) {
-        editor?.chain().focus().setImage({ src: res.data }).run();
-        return res.data;
-      } else if (file.type.startsWith("video/") && res.data) {
-        const videoTag = `<video src="${res.data}" controls width="100%" />`;
-        editor?.commands.insertContent(videoTag);
-        return res.data;
-      }
-
-
-      // return res.data.url;
-    } catch (err) {
-      console.error("❌ 파일 업로드 실패:", err);
-      alert("파일 업로드 중 오류가 발생했습니다.");
-      return null;
-    }
   };
 
   if (!editor) return null;
