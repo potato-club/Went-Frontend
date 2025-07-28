@@ -5,8 +5,10 @@ import styled from "styled-components";
 import { uploadPhoto, writePost } from "../../api/write";
 import TiptapEditor from "../../components/TiptapEditor";
 import { CATEGORIES } from "../../constants/categories";
+import { useAuth } from "../../contexts/AuthContext";
 
 const WritePage = () => {
+  const { currentUser } = useAuth();
   const [rating, setRating] = useState(0);
   const [editorContent, setEditorContent] = useState("");
   const [categoryId, setCategoryId] = useState(0);
@@ -31,15 +33,24 @@ const WritePage = () => {
   };
 
   const handleSubmit = async () => {
+    // 로그인 체크
+    if (!currentUser.isLoggedIn) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
+
     const postData = {
-      userId: "test-key",
+      // userId: 1, // TODO: 실제 사용자 ID로 변경 필요 (백엔드와 협의)
+      title: title,
       content: editorContent,
       categoryId: categoryId,
-      photoUrls: thumbnailUrl ? [thumbnailUrl] : [],
-      title: title,
+      stars: rating, // rating을 stars로 매핑
+      thumbnailUrl: thumbnailUrl
     };
 
     console.log("📤 글 등록 데이터:", postData);
+    console.log("📤 현재 사용자:", currentUser);
 
     try {
       const res = await writePost(postData);
@@ -115,7 +126,7 @@ const WritePage = () => {
       formData.append("files", croppedBlob, "thumbnail.png");
       try {
         const res = await uploadPhoto(formData);
-        const url = res.data;
+        const url = res.data[0];
         console.log("✅ 썸네일 업로드 성공:", url);
         setThumbnailUrl(url);
         setCropperOpen(false);
@@ -434,6 +445,7 @@ const ZoomSlider = styled.input`
   background: #e2e2e2;
   border-radius: 2px;
   outline: none;
+  appearance: none;
   -webkit-appearance: none;
   
   &::-webkit-slider-thumb {
