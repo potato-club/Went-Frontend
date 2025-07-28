@@ -46,7 +46,7 @@ const WritePage = () => {
       content: editorContent,
       categoryId: categoryId,
       stars: rating, // rating을 stars로 매핑
-      thumbnailUrl: thumbnailUrl ? [thumbnailUrl] : [], // photoUrls에서 thumbnails로 변경
+      thumbnailUrl: thumbnailUrl
     };
 
     console.log("📤 글 등록 데이터:", postData);
@@ -126,7 +126,7 @@ const WritePage = () => {
       formData.append("files", croppedBlob, "thumbnail.png");
       try {
         const res = await uploadPhoto(formData);
-        const url = res.data;
+        const url = res.data[0];
         console.log("✅ 썸네일 업로드 성공:", url);
         setThumbnailUrl(url);
         setCropperOpen(false);
