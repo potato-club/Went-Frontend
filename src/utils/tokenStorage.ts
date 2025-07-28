@@ -24,7 +24,7 @@ export const tokenStorage = {
     return sessionStorage.getItem(REFRESH_TOKEN_KEY);
   },
 
-  // 모든 토큰 삭제 (로그아웃)
+  // 모든 토큰 삭제
   clearTokens: () => {
     sessionStorage.removeItem(ACCESS_TOKEN_KEY);
     sessionStorage.removeItem(REFRESH_TOKEN_KEY);

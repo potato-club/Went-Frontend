@@ -1,12 +1,12 @@
 import axios from 'axios';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { findUser, kakaoLogin, registerUser } from '../../api/user';
+import { kakaoLogin, registerUser } from '../../api/user';
 import { useAuth } from '../../contexts/AuthContext';
 
 const KakaoRedirectPage = () => {
   const navigate = useNavigate();
-  const { setSignUpData } = useAuth();
+  const { setSignUpData, setCurrentUser } = useAuth();
 
   useEffect(() => {
     const code = new URL(window.location.href).searchParams.get('code');
@@ -19,34 +19,32 @@ const KakaoRedirectPage = () => {
         // 백엔드에 code 전달하여 사용자 정보 획득
         const kakaoRes = await kakaoLogin(code);
 
-        const { socialKey, nickname, email, birthDate, region } = kakaoRes.data;
+        console.log('카카오 사용자 정보:', kakaoRes);
 
-        const newUserData = {
-          socialKey: socialKey?.trim() || '',
-          nickname: nickname || '',
-          email: email || '',
-          birthDate: birthDate || '',
-          region: region || '',
-        };
 
         setSignUpData((prev) => ({
           ...prev,
-          ...newUserData,
+          ...kakaoRes.data,
         }));
 
-        try {
-          const res = await findUser({ socialKey: newUserData.socialKey, email: newUserData.email });
+        // AuthContext의 현재 사용자 정보도 업데이트
+        setCurrentUser({
+          socialKey: kakaoRes.data.socialKey,
+          email: kakaoRes.data.email,
+          nickname: kakaoRes.data.nickname, // nickName → nickname 통일
+        });
 
+        try {
           const hasMissingFields =
-            !res.nickname ||
-            !res.region ||
-            !res.birthDate ||
-            !res.categoryIds?.length;
+            !kakaoRes.data.nickname ||
+            !kakaoRes.data.region ||
+            !kakaoRes.data.birthDate ||
+            !kakaoRes.data.categoryIds?.length;
 
           navigate(hasMissingFields ? '/signup' : '/');
         } catch (err: any) {
           if (axios.isAxiosError(err) && err.response?.status === 404) {
-            await registerUser({ socialKey: newUserData.socialKey, email: newUserData.email });
+            await registerUser({ socialKey: kakaoRes.data.socialKey, email: kakaoRes.data.email });
             navigate('/signup');
           } else {
             console.error('❌ API Error:', err.response || err.message);
@@ -59,7 +57,7 @@ const KakaoRedirectPage = () => {
     };
 
     fetchKakaoUser();
-  }, [navigate, setSignUpData]);
+  }, [navigate, setSignUpData, setCurrentUser]);
 
   return <div>카카오 로그인 중입니다...</div>;
 };
