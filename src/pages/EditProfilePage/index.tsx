@@ -196,6 +196,7 @@ function EditProfilePage() {
           onCancel={handleCancel}
           showCancelButton={true}
           isSubmitDisabled={!hasChanges()}
+          showWithdrawButton={true} // 프로필 수정 시에는 회원탈퇴 버튼 표시
         />
       </LoginPageBody>
     </EditProfilePageWrapper>

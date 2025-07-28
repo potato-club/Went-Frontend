@@ -68,6 +68,12 @@ export const logout = () => {
   tokenStorage.clearTokens();
 };
 
+// 회원탈퇴 API
+export const deleteUser = async () => {
+  const response = await axios.delete('/api/users');
+  return response.data;
+};
+
 export const googleLogin = async (idToken: string) => {
   const response = await axios.post("/api/oauth/google", { idToken });
 
