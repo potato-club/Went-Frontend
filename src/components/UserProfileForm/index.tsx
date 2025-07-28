@@ -25,6 +25,7 @@ interface UserProfileFormProps {
   onCancel?: () => void;
   showCancelButton?: boolean;
   isSubmitDisabled?: boolean;
+  showWithdrawButton?: boolean; // 회원탈퇴 버튼 표시 여부
 }
 
 function UserProfileForm({
@@ -36,6 +37,7 @@ function UserProfileForm({
   onCancel,
   showCancelButton = true,
   isSubmitDisabled = false,
+  showWithdrawButton = false, // 기본값은 false (회원가입에서는 숨김)
 }: UserProfileFormProps) {
   // 주소 검색 관련 state
   const [addressSuggestions, setAddressSuggestions] = useState<string[]>([]);
@@ -364,14 +366,28 @@ function UserProfileForm({
         {/* 프로필 이미지 섹션 */}
         <ProfileHeader>
           <ProfileImageContainer onClick={handleProfileImageClick}>
-            <ProfileImage
-              src={formData.profileImageUrl || '/logo192.png'}
-              alt="프로필 사진"
-              onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                const target = e.target as HTMLImageElement;
-                target.src = '/logo192.png'; // 기본 이미지로 대체
-              }}
-            />
+            {formData.profileImageUrl ? (
+              <ProfileImage
+                src={formData.profileImageUrl}
+                alt="프로필 사진"
+                onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  // 에러 시 기본 아이콘으로 대체
+                  onFormDataChange((prev: SignUpData) => ({
+                    ...prev,
+                    profileImageUrl: '',
+                  }));
+                }}
+              />
+            ) : (
+              <DefaultProfileIcon>
+                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" fill="#C6C6C6" />
+                  <path d="M12 14C7.58172 14 4 17.5817 4 22H20C20 17.5817 16.4183 14 12 14Z" fill="#C6C6C6" />
+                </svg>
+              </DefaultProfileIcon>
+            )}
             <ProfileImageOverlay>
               {isImageUploading ? (
                 <UploadingText>업로드중...</UploadingText>
@@ -466,6 +482,13 @@ function UserProfileForm({
           </InputBox>
         </CategoryWrapper>
 
+        {/* 회원탈퇴 버튼 - 프로필 수정 시에만 표시 */}
+        {showWithdrawButton && (
+          <WithdrawContainer>
+            <WithdrawButton type="button" onClick={handleWithdraw}>회원탈퇴</WithdrawButton>
+          </WithdrawContainer>
+        )}
+
         <ButtonBox>
           {showCancelButton && (
             <Button bgColor="#eee" onClick={onCancel} type="button">
@@ -482,11 +505,6 @@ function UserProfileForm({
           </Button>
         </ButtonBox>
       </Form>
-
-      {/* 회원탈퇴 버튼을 폼 밖으로 이동 */}
-      <WithdrawContainer>
-        <WithdrawButton type="button" onClick={handleWithdraw}>회원탈퇴</WithdrawButton>
-      </WithdrawContainer>
     </>
   );
 }
@@ -598,6 +616,16 @@ const ProfileImage = styled.img`
   border-radius: 50%;
 `;
 
+const DefaultProfileIcon = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f5f5;
+  border-radius: 50%;
+`;
+
 const ProfileImageOverlay = styled.div`
   position: absolute;
   top: 0;
@@ -632,7 +660,6 @@ const WithdrawButton = styled.button`
   font-size: 12px;
   cursor: pointer;
   padding: 0;
-  margin-top: 16px;
   
   &:hover {
     opacity: 0.8;
@@ -640,9 +667,8 @@ const WithdrawButton = styled.button`
 `;
 
 const WithdrawContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-top: 16px;
+margin-top: 16px;
+padding-left: 8px;
 `;
 
 
