@@ -56,7 +56,6 @@ export const ButtonBox = styled.div<ButtonBoxProps>`
   display: flex;
   gap: 10px;
   flex-direction: ${(props) => props.direction || "row"}; // 기본값은 'row'
-  margin-top: 50px;
 `;
 
 // export const CategoryWrapper = styled.div`
