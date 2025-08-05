@@ -15,16 +15,18 @@ interface CroppedArea {
 }
 
 interface WritePostData {
-  userId: string;
+  userId: number;
   content: string;
   categoryId: number;
-  photoUrls: string[];
+  thumbnailUrl: string | null;
   title: string;
+  stars: number;
 }
 
 const WritePage = () => {
   // 상태 관리
   const [formData, setFormData] = useState({
+    userId: 12345,
     rating: 0,
     editorContent: "",
     categoryId: 0,
@@ -133,17 +135,42 @@ const WritePage = () => {
       });
 
       const formDataForUpload = new FormData();
-      formDataForUpload.append('photo', blob, 'thumbnail.jpg');
+      formDataForUpload.append('files', blob, 'thumbnail.jpg');
 
       const uploadResponse = await uploadPhoto(formDataForUpload);
-      const imageUrl = uploadResponse.data.url;
+
+      // 응답 구조에 맞게 URL 추출
+      let imageUrl = '';
+      if (Array.isArray(uploadResponse.data) && uploadResponse.data.length > 0) {
+        imageUrl = uploadResponse.data[0];
+      } else if (typeof uploadResponse.data === 'string') {
+        imageUrl = uploadResponse.data;
+      } else if (uploadResponse.data.url) {
+        imageUrl = uploadResponse.data.url;
+      } else {
+        console.error("예상과 다른 응답 형태:", uploadResponse.data);
+        alert("썸네일 업로드 응답 형태가 예상과 다릅니다.");
+        return;
+      }
 
       updateFormField('thumbnailUrl', imageUrl);
       updateCropperState({ open: false, rawImage: null });
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('썸네일 업로드 실패:', error);
-      alert("썸네일 업로드에 실패했습니다.");
+      console.error('에러 응답:', error.response);
+      console.error('에러 상태:', error.response?.status);
+      console.error('에러 데이터:', error.response?.data);
+
+      if (error.response?.status === 413) {
+        alert("이미지 크기가 너무 큽니다. 더 작은 이미지를 업로드해주세요.");
+      } else if (error.response?.status === 400) {
+        alert("잘못된 파일 형식입니다. 이미지 파일만 업로드 가능합니다.");
+      } else if (error.response?.status === 401) {
+        alert("로그인이 필요합니다.");
+      } else {
+        alert(`썸네일 업로드에 실패했습니다: ${error.response?.data?.message || error.message}`);
+      }
     }
   }, [cropperState, updateFormField, updateCropperState]);
 
@@ -156,11 +183,12 @@ const WritePage = () => {
     }
 
     const postData: WritePostData = {
-      userId: "test-key",
+      userId: 12345,
+      title: formData.title,
       content: formData.editorContent,
       categoryId: formData.categoryId,
-      photoUrls: formData.thumbnailUrl ? [formData.thumbnailUrl] : [],
-      title: formData.title,
+      stars: formData.rating,
+      thumbnailUrl: formData.thumbnailUrl,
     };
 
     console.log("📤 글 등록 데이터:", postData);
@@ -187,8 +215,8 @@ const WritePage = () => {
       <Title>리뷰 작성</Title>
       <InputBox>
         <OptionBox>
-          <Select 
-            value={formData.categoryId} 
+          <Select
+            value={formData.categoryId}
             onChange={e => updateFormField('categoryId', Number(e.target.value))}
           >
             <option value="">카테고리</option>
@@ -218,14 +246,14 @@ const WritePage = () => {
             ))}
           </StarWrapper>
         </OptionBox>
-        
+
         <Input
           type="text"
           placeholder="제목을 입력해주세요."
           value={formData.title}
           onChange={e => updateFormField('title', e.target.value)}
         />
-        
+
         {/* 대표 썸네일 업로드 */}
         <ThumbBox>
           <ThumbLabel htmlFor="thumbnail-upload">대표 썸네일 업로드</ThumbLabel>
@@ -271,8 +299,8 @@ const WritePage = () => {
                 <BlackButton type="button" onClick={handleImageCropAndUpload}>
                   자르기 및 업로드
                 </BlackButton>
-                <WhiteButton 
-                  type="button" 
+                <WhiteButton
+                  type="button"
                   onClick={() => updateCropperState({ open: false })}
                 >
                   취소
@@ -282,10 +310,10 @@ const WritePage = () => {
           </CropperModal>
         )}
       </InputBox>
-      
-      <TiptapEditor 
-        content={formData.editorContent} 
-        onChange={(content) => updateFormField('editorContent', content)} 
+
+      <TiptapEditor
+        content={formData.editorContent}
+        onChange={(content) => updateFormField('editorContent', content)}
       />
 
       <ButtonBox>

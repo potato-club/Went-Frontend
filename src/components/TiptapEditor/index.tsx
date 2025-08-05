@@ -18,12 +18,36 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
 
   const uploadFile = useCallback(async (file: File) => {
     try {
+      // 파일 유효성 검사
+      if (!file) {
+        alert("파일이 선택되지 않았습니다.");
+        return null;
+      }
+
+      // 파일 크기 체크 (10MB 제한)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        alert("파일 크기는 10MB 이하여야 합니다.");
+        return null;
+      }
+
+      // 파일 타입 체크
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/webm', 'video/ogg'];
+      if (!allowedTypes.includes(file.type)) {
+        alert("지원하지 않는 파일 형식입니다. 이미지(JPG, PNG, GIF, WebP) 또는 동영상(MP4, WebM, OGG) 파일만 업로드 가능합니다.");
+        return null;
+      }
+
       const formData = new FormData();
       formData.append("files", file);
 
+      console.log("✅ 업로드할 파일:", file);
+      console.log("✅ FormData 내용: files =", file.name, file.size, "bytes");
+
       const res = await uploadPhoto(formData);
 
-      console.log("✅ 업로드된 파일 응답:", res.data);
+      console.log("✅ 업로드된 파일 응답:", res);
+      console.log("✅ 응답 데이터:", res.data);
 
       // 배열 형태의 응답에서 첫 번째 URL 추출
       let fileUrl = '';
@@ -33,15 +57,28 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
         fileUrl = res.data;
       } else {
         console.error("❌ 예상과 다른 응답 형태:", res.data);
+        alert(`예상과 다른 응답 형태입니다: ${JSON.stringify(res.data)}`);
         return null;
       }
 
       console.log("✅ 추출된 파일 URL:", fileUrl);
 
       return fileUrl;
-    } catch (err) {
+    } catch (err: any) {
       console.error("❌ 파일 업로드 실패:", err);
-      alert("파일 업로드 중 오류가 발생했습니다.");
+      console.error("❌ 에러 응답:", err.response);
+      console.error("❌ 에러 상태:", err.response?.status);
+      console.error("❌ 에러 데이터:", err.response?.data);
+
+      if (err.response?.status === 413) {
+        alert("파일 크기가 너무 큽니다. 더 작은 파일을 업로드해주세요.");
+      } else if (err.response?.status === 400) {
+        alert("잘못된 파일 형식입니다. 이미지 또는 동영상 파일만 업로드 가능합니다.");
+      } else if (err.response?.status === 401) {
+        alert("로그인이 필요합니다.");
+      } else {
+        alert(`파일 업로드 중 오류가 발생했습니다: ${err.response?.data?.message || err.message}`);
+      }
       return null;
     }
   }, []);
