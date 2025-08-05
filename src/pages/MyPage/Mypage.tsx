@@ -70,11 +70,15 @@ const MyPage = () => {
     };
 
     const renderStars = (rating: number) => {
-        return Array.from({ length: 5 }, (_, index) => (
-            <Star key={index} filled={index < rating}>
-                ★
-            </Star>
-        ));
+        return (
+            <StarWrapper>
+                {Array.from({ length: 5 }, (_, index) => (
+                    <Star key={index} filled={index < rating}>
+                        ★
+                    </Star>
+                ))}
+            </StarWrapper>
+        );
     };
 
     const formatDate = (dateString: string) => {
@@ -82,7 +86,7 @@ const MyPage = () => {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit'
-        }).replace(/\./g, '/').replace(/ /g, '');
+        }).replace(/ /g, '');
     };
 
     if (loading) {
@@ -149,8 +153,12 @@ const MyPage = () => {
                                         <PostTitle>{post.title}</PostTitle>
                                         <PostStats>
                                             {renderStars(post.stars)}
-                                            <StatsText>♥ {post.likeCount}</StatsText>
-                                            <StatsDate>{formatDate(post.createdDate)}</StatsDate>
+                                            <StatsRow>
+                                                <StatsText><svg xmlns="http://www.w3.org/2000/svg" width="12" height="11" viewBox="0 0 12 11" fill="none">
+                                                    <path d="M5.85139 2.81297C4.74889 0.218685 0.890137 0.495 0.890137 3.81079C0.890137 7.12659 5.85139 9.88982 5.85139 9.88982C5.85139 9.88982 10.8126 7.12659 10.8126 3.81079C10.8126 0.495 6.95389 0.218685 5.85139 2.81297Z" stroke="#C6C6C6" stroke-width="1.26" stroke-linecap="round" stroke-linejoin="round" />
+                                                </svg> {post.likeCount}</StatsText>
+                                                <StatsDate>{formatDate(post.createdDate)}</StatsDate>
+                                            </StatsRow>
                                         </PostStats>
                                     </PostInfo>
                                 </PostCard>
@@ -177,8 +185,12 @@ const MyPage = () => {
                                         <PostTitle>{post.title}</PostTitle>
                                         <PostStats>
                                             {renderStars(post.stars)}
-                                            <StatsText>♥ {post.likeCount}</StatsText>
-                                            <StatsDate>{formatDate(post.createdDate)}</StatsDate>
+                                            <StatsRow>
+                                                <StatsText><svg xmlns="http://www.w3.org/2000/svg" width="12" height="11" viewBox="0 0 12 11" fill="none">
+                                                    <path d="M5.85139 2.81297C4.74889 0.218685 0.890137 0.495 0.890137 3.81079C0.890137 7.12659 5.85139 9.88982 5.85139 9.88982C5.85139 9.88982 10.8126 7.12659 10.8126 3.81079C10.8126 0.495 6.95389 0.218685 5.85139 2.81297Z" stroke="#C6C6C6" stroke-width="1.26" stroke-linecap="round" stroke-linejoin="round" />
+                                                </svg> {post.likeCount}</StatsText>
+                                                <StatsDate>{formatDate(post.createdDate)}</StatsDate>
+                                            </StatsRow>
                                         </PostStats>
                                     </PostInfo>
                                 </PostCard>
@@ -194,7 +206,7 @@ const MyPage = () => {
 export default MyPage;
 
 const Container = styled.div`
-  min-width: 1200px;
+  min-width: 1350px;
   margin: 0 auto;
   margin-top: 100px;
   padding: 20px;
@@ -203,7 +215,7 @@ const Container = styled.div`
 
 const MainLayout = styled.div`
   display: flex;
-  gap: 40px;
+  gap: 90px;
   align-items: flex-start;
   
   @media (max-width: 768px) {
@@ -250,7 +262,7 @@ const ProfileSection = styled.div`
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 60px 80px;
+  padding: 60px 60px;
   background: white;
   border-radius: 12px;
   border: 1px solid #E2E2E2;
@@ -260,8 +272,8 @@ const ProfileImage = styled.div`
   margin-bottom: 20px;
   
   img {
-    width: 200px;
-    height: 200px;
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
     object-fit: cover;
   }
@@ -303,32 +315,38 @@ const ProfileInfo = styled.div`
 `;
 
 const Nickname = styled.h1`
-  font-size: 28px;
-  font-weight: bold;
-  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 140%; /* 33.6px */
   color: #1d1d1d;
   text-align: center;
+  margin-bottom: 100px;
 `;
 
 const InfoRow = styled.div`
   display: flex;
-  flex-direction: column;
-  margin-bottom: 15px;
-  align-items: flex-start;
-  text-align: left;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 30px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
 `;
 
 const InfoLabel = styled.span`
-  font-size: 14px;
-  color: #666;
+  font-size: 16px;
+  color: #C6C6C6;
   font-weight: 500;
-  margin-bottom: 4px;
+  flex-shrink: 0;
 `;
 
 const InfoValue = styled.span`
   font-size: 16px;
   color: #1d1d1d;
   font-weight: 400;
+  text-align: right;
 `;
 
 const Section = styled.div`
@@ -350,9 +368,12 @@ const SectionTitle = styled.h2`
 
 const MoreButton = styled.button`
   background: none;
-  border: none;
+  border: 1px solid #E2E2E2;
+  border-radius: 90px;
+  padding: 8px 10px;
   color: #666;
-  font-size: 14px;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
   
   &:hover {
@@ -362,24 +383,30 @@ const MoreButton = styled.button`
 
 const PostGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, 210px);
   gap: 16px;
+  justify-content: start;
   
   @media (max-width: 768px) {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, 210px);
+    justify-content: center;
   }
 `;
 
 const PostCard = styled.div`
+  width: 210px;
+  height: 250px;
   background: white;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
   
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
   }
 `;
 
@@ -387,11 +414,17 @@ const PostImage = styled.div`
   width: 100%;
   height: 160px;
   background-color: #f0f0f0;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+
   
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: 12px;
   }
 `;
 
@@ -403,7 +436,8 @@ const DefaultImage = styled.div`
   align-items: center;
   justify-content: center;
   color: #999;
-  font-size: 14px;
+  font-size: 12px;
+  border-radius: 12px;
   
   &::before {
     content: '이미지 없음';
@@ -411,39 +445,54 @@ const DefaultImage = styled.div`
 `;
 
 const PostInfo = styled.div`
-  padding: 16px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
 `;
 
 const PostTitle = styled.h3`
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   color: #1d1d1d;
-  margin-bottom: 12px;
-  line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  height: 30px;
+  margin: 0;
 `;
 
 const PostStats = styled.div`
   display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 12px;
+`;
+
+const StatsRow = styled.div`
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
+  width: 100%;
+`;
+
+const StarWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 2px;
 `;
 
 const Star = styled.span<{ filled: boolean; }>`
   color: ${props => props.filled ? '#ffd700' : '#e0e0e0'};
-  font-size: 16px;
+  font-size: 14px;
 `;
 
 const StatsText = styled.span`
   color: #666;
-  margin-left: 8px;
+  font-size: 12px;
 `;
 
 const StatsDate = styled.span`
   color: #999;
-  margin-left: auto;
+  font-size: 11px;
 `;
