@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import styled from "styled-components";
+import { deleteUser } from "../../api/user";
+import { uploadPhoto } from "../../api/write";
 import { CATEGORIES } from "../../constants/categories";
 import { SignUpData } from "../../contexts/AuthContext";
 import {
@@ -22,6 +24,8 @@ interface UserProfileFormProps {
   cancelButtonText?: string;
   onCancel?: () => void;
   showCancelButton?: boolean;
+  isSubmitDisabled?: boolean;
+  showWithdrawButton?: boolean; // 회원탈퇴 버튼 표시 여부
 }
 
 function UserProfileForm({
@@ -32,6 +36,8 @@ function UserProfileForm({
   cancelButtonText = "취소",
   onCancel,
   showCancelButton = true,
+  isSubmitDisabled = false,
+  showWithdrawButton = false, // 기본값은 false (회원가입에서는 숨김)
 }: UserProfileFormProps) {
   // 주소 검색 관련 state
   const [addressSuggestions, setAddressSuggestions] = useState<string[]>([]);
@@ -41,11 +47,96 @@ function UserProfileForm({
   // 생년월일 에러 메시지 상태
   const [birthdateError, setBirthdateError] = useState<string>('');
 
+  // 이미지 업로드 관련 state
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isImageUploading, setIsImageUploading] = useState(false);
+
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onFormDataChange((prev: SignUpData) => ({
       ...prev,
       nickname: e.target.value,
     }));
+  };
+
+  // 프로필 이미지 클릭 핸들러
+  const handleProfileImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  // 이미지 파일 선택 핸들러
+  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // 파일 크기 체크 (예: 5MB 제한)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('이미지 파일 크기는 5MB 이하여야 합니다.');
+      return;
+    }
+
+    // 파일 형식 체크
+    if (!file.type.startsWith('image/')) {
+      alert('이미지 파일만 업로드 가능합니다.');
+      return;
+    }
+
+    try {
+      setIsImageUploading(true);
+      console.log('🖼️ 이미지 업로드 시작:', file.name);
+
+      // FormData 생성
+      const formData = new FormData();
+      formData.append('files', file);
+
+      console.log('📤 FormData 내용:', formData.get('files'));
+
+      // 이미지 업로드 API 호출
+      const response = await uploadPhoto(formData);
+      console.log('📥 서버 응답 전체:', response);
+      console.log('📥 서버 응답 데이터:', response.data);
+
+      // 응답 구조에 따라 URL 추출 방법을 조정
+      let imageUrl = '';
+      if (Array.isArray(response.data) && response.data.length > 0) {
+        // 배열 형태의 응답에서 첫 번째 URL 가져오기
+        imageUrl = response.data[0];
+      } else if (response.data.url) {
+        imageUrl = response.data.url;
+      } else if (response.data.imageUrl) {
+        imageUrl = response.data.imageUrl;
+      } else if (response.data.data && response.data.data.url) {
+        imageUrl = response.data.data.url;
+      } else if (typeof response.data === 'string') {
+        imageUrl = response.data;
+      } else {
+        console.warn('⚠️ 예상과 다른 응답 구조:', response.data);
+        throw new Error('이미지 URL을 찾을 수 없습니다.');
+      }
+
+      console.log('✅ 추출된 이미지 URL:', imageUrl);
+
+      // formData에 업로드된 이미지 URL 설정
+      onFormDataChange((prev: SignUpData) => {
+        const updated = {
+          ...prev,
+          profileImageUrl: imageUrl,
+        };
+        console.log('🔄 formData 업데이트:', updated);
+        return updated;
+      });
+
+      alert('프로필 이미지가 업로드되었습니다!');
+    } catch (error: any) {
+      console.error('❌ 이미지 업로드 실패:', error);
+      console.error('❌ 에러 상세:', error.response?.data || error.message);
+      alert('이미지 업로드에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsImageUploading(false);
+      // 파일 입력 초기화
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
   };
 
   const handleBirthdateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -251,96 +342,170 @@ function UserProfileForm({
     }
   };
 
+  // 회원탈퇴 핸들러
+  const handleWithdraw = async () => {
+    if (window.confirm("정말 탈퇴하시겠습니까?")) {
+      try {
+        await deleteUser();
+        alert("회원탈퇴가 완료되었습니다.");
+
+        // 토큰 삭제 및 로그인 페이지로 이동
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = '/';
+      } catch (error: any) {
+        console.error('❌ 회원탈퇴 실패:', error);
+        alert('회원탈퇴 중 오류가 발생했습니다. 다시 시도해주세요.');
+      }
+    }
+  };
+
   return (
-    <Form onSubmit={onSubmit}>
-      <InputWrapper>
-        <InputBox direction="column">
-          <label>닉네임</label>
-          <Input
-            placeholder="사용할 닉네임을 입력해 주세요"
-            value={formData.nickname}
-            onChange={handleNicknameChange}
-          />
-        </InputBox>
-
-        <InputBox direction="column">
-          <label>지역</label>
-          <AddressInputWrapper>
-            <StyledInput
-              placeholder="사는 지역을 입력해 주세요"
-              value={formData.region}
-              onChange={handleAddressInput}
-              autoComplete="off"
-            />
-            <LocationButton
-              type="button"
-              onClick={getCurrentLocationAddressKakao}
-              disabled={isSearching}
-            >
-              현재 위치
-            </LocationButton>
-
-            {showSuggestions && addressSuggestions.length > 0 && (
-              <SuggestionList>
-                {addressSuggestions.map((address, index) => (
-                  <SuggestionItem
-                    key={index}
-                    onClick={() => selectAddress(address)}
-                  >
-                    {address}
-                  </SuggestionItem>
-                ))}
-              </SuggestionList>
+    <>
+      <Form onSubmit={onSubmit}>
+        {/* 프로필 이미지 섹션 */}
+        <ProfileHeader>
+          <ProfileImageContainer onClick={handleProfileImageClick}>
+            {formData.profileImageUrl ? (
+              <ProfileImage
+                src={formData.profileImageUrl}
+                alt="프로필 사진"
+                onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  // 에러 시 기본 아이콘으로 대체
+                  onFormDataChange((prev: SignUpData) => ({
+                    ...prev,
+                    profileImageUrl: '',
+                  }));
+                }}
+              />
+            ) : (
+              <DefaultProfileIcon>
+                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" fill="#C6C6C6" />
+                  <path d="M12 14C7.58172 14 4 17.5817 4 22H20C20 17.5817 16.4183 14 12 14Z" fill="#C6C6C6" />
+                </svg>
+              </DefaultProfileIcon>
             )}
-          </AddressInputWrapper>
-        </InputBox>
-
-        <InputBox direction="column">
-          <label>생년월일</label>
-          <Input
-            placeholder="생년월일 8자리 (YYYY-MM-DD)"
-            value={formData.birthDate}
-            onChange={handleBirthdateChange}
-            onBlur={handleBirthdateBlur}
-            maxLength={10}
+            <ProfileImageOverlay>
+              {isImageUploading ? (
+                <UploadingText>업로드중...</UploadingText>
+              ) : (
+                <CameraIcon>📷</CameraIcon>
+              )}
+            </ProfileImageOverlay>
+          </ProfileImageContainer>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleImageFileChange}
+            style={{ display: 'none' }}
           />
-          {birthdateError && <ErrorMessage>{birthdateError}</ErrorMessage>}
-        </InputBox>
-      </InputWrapper>
+        </ProfileHeader>
 
-      <CategoryWrapper>
-        <InputBox direction="column">
-          <label>카테고리 선택 (1개 이상 선택)</label>
-          <CategoryList>
-            {CATEGORIES.map((category) => (
-              <CategoryItem
-                key={category.categoryId}
+        <InputWrapper>
+          <InputBox direction="column">
+            <label>닉네임</label>
+            <Input
+              placeholder="사용할 닉네임을 입력해 주세요"
+              value={formData.nickname}
+              onChange={handleNicknameChange}
+            />
+          </InputBox>
+
+          <InputBox direction="column">
+            <label>지역</label>
+            <AddressInputWrapper>
+              <StyledInput
+                placeholder="사는 지역을 입력해 주세요"
+                value={formData.region}
+                onChange={handleAddressInput}
+                autoComplete="off"
+              />
+              <LocationButton
                 type="button"
-                selected={formData.categoryIds.includes(
-                  String(category.categoryId)
-                )}
-                onClick={() => handleCategoryClick(String(category.categoryId))}
+                onClick={getCurrentLocationAddressKakao}
+                disabled={isSearching}
               >
-                {category.koName}
-                {formData.categoryIds.includes(String(category.categoryId)) &&
-                  " ×"}
-              </CategoryItem>
-            ))}
-          </CategoryList>
-        </InputBox>
-      </CategoryWrapper>
+                현재 위치
+              </LocationButton>
 
-      <ButtonBox>
-        {showCancelButton && (
-          <Button bgColor="#eee" onClick={onCancel} type="button">
-            {cancelButtonText}
-          </Button>
+              {showSuggestions && addressSuggestions.length > 0 && (
+                <SuggestionList>
+                  {addressSuggestions.map((address, index) => (
+                    <SuggestionItem
+                      key={index}
+                      onClick={() => selectAddress(address)}
+                    >
+                      {address}
+                    </SuggestionItem>
+                  ))}
+                </SuggestionList>
+              )}
+            </AddressInputWrapper>
+          </InputBox>
+
+          <InputBox direction="column">
+            <label>생년월일</label>
+            <Input
+              placeholder="생년월일 8자리 (YYYY-MM-DD)"
+              value={formData.birthDate}
+              onChange={handleBirthdateChange}
+              onBlur={handleBirthdateBlur}
+              maxLength={10}
+            />
+            {birthdateError && <ErrorMessage>{birthdateError}</ErrorMessage>}
+          </InputBox>
+        </InputWrapper>
+
+        <CategoryWrapper>
+          <InputBox direction="column">
+            <label>카테고리 선택 (1개 이상 선택)</label>
+            <CategoryList>
+              {CATEGORIES.map((category) => (
+                <CategoryItem
+                  key={category.categoryId}
+                  type="button"
+                  selected={formData.categoryIds.includes(
+                    String(category.categoryId)
+                  )}
+                  onClick={() => handleCategoryClick(String(category.categoryId))}
+                >
+                  {category.koName}
+                  {formData.categoryIds.includes(String(category.categoryId)) &&
+                    " ×"}
+                </CategoryItem>
+              ))}
+            </CategoryList>
+          </InputBox>
+        </CategoryWrapper>
+
+        {/* 회원탈퇴 버튼 - 프로필 수정 시에만 표시 */}
+        {showWithdrawButton && (
+          <WithdrawContainer>
+            <WithdrawButton type="button" onClick={handleWithdraw}>회원탈퇴</WithdrawButton>
+          </WithdrawContainer>
         )}
-        <Button bgColor="#1d1d1d" color="#ffffff" type="submit">
-          {submitButtonText}
-        </Button>
-      </ButtonBox>
-    </Form>
+
+        <ButtonBox>
+          {showCancelButton && (
+            <Button bgColor="#eee" onClick={onCancel} type="button">
+              {cancelButtonText}
+            </Button>
+          )}
+          <Button
+            bgColor={isSubmitDisabled ? "#ccc" : "#1d1d1d"}
+            color="#ffffff"
+            type="submit"
+            disabled={isSubmitDisabled}
+          >
+            {submitButtonText}
+          </Button>
+        </ButtonBox>
+      </Form>
+    </>
   );
 }
 
@@ -417,5 +582,94 @@ const ErrorMessage = styled.div`
   margin-top: 4px;
   font-weight: 500;
 `;
+
+// 프로필 이미지 관련 스타일 컴포넌트들
+const ProfileHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const ProfileImageContainer = styled.div`
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #e9ecef;
+  
+  &:hover {
+    border-color: #007bff;
+  }
+  
+  &:hover > div {
+    opacity: 1;
+  }
+`;
+
+const ProfileImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+`;
+
+const DefaultProfileIcon = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f5f5;
+  border-radius: 50%;
+`;
+
+const ProfileImageOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 50%;
+`;
+
+const CameraIcon = styled.span`
+  font-size: 24px;
+  color: white;
+`;
+
+const UploadingText = styled.span`
+  font-size: 14px;
+  color: white;
+  font-weight: 500;
+`;
+
+const WithdrawButton = styled.button`
+  color: #C6C6C6;
+  background: none;
+  border: none;
+  text-decoration: underline;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+  
+  &:hover {
+    opacity: 0.8;
+  }
+`;
+
+const WithdrawContainer = styled.div`
+margin-top: 16px;
+padding-left: 8px;
+`;
+
 
 export default UserProfileForm;

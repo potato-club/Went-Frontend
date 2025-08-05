@@ -38,6 +38,12 @@ export const updateUser = async (data: SignUpData) => {
   //   return axios.put(`/api/users/${id}`, payload);
 };
 
+// 내 정보 조회 API
+export const getUserProfile = async () => {
+  const response = await axios.get('/api/users/me');
+  return response.data;
+};
+
 export const kakaoLogin = async (code: string) => {
   const response = await axios.post("/api/oauth/kakao", { code });
 
@@ -60,6 +66,24 @@ export const kakaoLogin = async (code: string) => {
 export const logout = () => {
   // 클라이언트 측 토큰 삭제만으로 로그아웃 완료
   tokenStorage.clearTokens();
+};
+
+// 회원탈퇴 API
+export const deleteUser = async () => {
+  const response = await axios.delete('/api/users');
+  return response.data;
+};
+
+// 내가 작성한 게시글 목록 조회 API
+export const getUserPosts = async () => {
+  const response = await axios.get('/api/users/me/posts');
+  return response.data;
+};
+
+// 내가 좋아요 누른 게시글 목록 조회 API
+export const getUserLikes = async () => {
+  const response = await axios.get('/api/users/me/likes');
+  return response.data;
 };
 
 export const googleLogin = async (idToken: string) => {
