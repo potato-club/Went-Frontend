@@ -5,155 +5,203 @@ import styled from "styled-components";
 import { uploadPhoto, writePost } from "../../api/write";
 import TiptapEditor from "../../components/TiptapEditor";
 import { CATEGORIES } from "../../constants/categories";
-import { useAuth } from "../../contexts/AuthContext";
+
+// 타입 정의
+interface CroppedArea {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+interface WritePostData {
+  userId: string;
+  content: string;
+  categoryId: number;
+  photoUrls: string[];
+  title: string;
+}
 
 const WritePage = () => {
-  const { currentUser } = useAuth();
-  const [rating, setRating] = useState(0);
-  const [editorContent, setEditorContent] = useState("");
-  const [categoryId, setCategoryId] = useState(0);
-  const [title, setTitle] = useState("");
-  const [cropperOpen, setCropperOpen] = useState(false);
-  const [rawImage, setRawImage] = useState<string | null>(null);
-  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+  // 상태 관리
+  const [formData, setFormData] = useState({
+    rating: 0,
+    editorContent: "",
+    categoryId: 0,
+    title: "",
+    thumbnailUrl: null as string | null,
+  });
 
-  // react-easy-crop states
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  // 이미지 크롭 관련 상태
+  const [cropperState, setCropperState] = useState({
+    open: false,
+    rawImage: null as string | null,
+    crop: { x: 0, y: 0 },
+    zoom: 1,
+    croppedAreaPixels: null as CroppedArea | null,
+  });
 
   const navigate = useNavigate();
 
-  const handleClick = (index: number) => {
-    if (rating === index + 1) {
-      setRating(0);
-    } else {
-      setRating(index + 1);
-    }
-  };
+  // 입력 검증 함수
+  const validateForm = useCallback((): string | null => {
+    if (!formData.title.trim()) return "제목을 입력해주세요.";
+    if (formData.categoryId === 0) return "카테고리를 선택해주세요.";
+    if (!formData.editorContent.trim()) return "내용을 입력해주세요.";
+    return null;
+  }, [formData]);
 
-  const handleSubmit = async () => {
-    // 로그인 체크
-    if (!currentUser.isLoggedIn) {
-      alert('로그인이 필요합니다.');
-      navigate('/login');
+  // 별점 클릭 핸들러
+  const handleStarClick = useCallback((index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      rating: prev.rating === index + 1 ? 0 : index + 1
+    }));
+  }, []);
+
+  // 폼 필드 업데이트 핸들러
+  const updateFormField = useCallback((field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  }, []);
+
+  // 크롭퍼 상태 업데이트 핸들러
+  const updateCropperState = useCallback((updates: Partial<typeof cropperState>) => {
+    setCropperState(prev => ({ ...prev, ...updates }));
+  }, []);
+
+  // 썸네일 파일 선택 핸들러
+  const handleThumbnailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('이미지 파일만 업로드 가능합니다.');
       return;
     }
 
-    const postData = {
-      // userId: 1, // TODO: 실제 사용자 ID로 변경 필요 (백엔드와 협의)
-      title: title,
-      content: editorContent,
-      categoryId: categoryId,
-      stars: rating, // rating을 stars로 매핑
-      thumbnailUrl: thumbnailUrl ? [thumbnailUrl] : [], // photoUrls에서 thumbnails로 변경
+    const reader = new FileReader();
+    reader.onload = () => {
+      updateCropperState({
+        rawImage: reader.result as string,
+        open: true,
+        crop: { x: 0, y: 0 },
+        zoom: 1,
+      });
+    };
+    reader.readAsDataURL(file);
+  }, [updateCropperState]);
+
+  // 크롭 완료 핸들러
+  const onCropComplete = useCallback((croppedArea: any, croppedAreaPixels: CroppedArea) => {
+    updateCropperState({ croppedAreaPixels });
+  }, [updateCropperState]);
+
+  // 이미지 크롭 및 업로드 처리
+  const handleImageCropAndUpload = useCallback(async () => {
+    if (!cropperState.rawImage || !cropperState.croppedAreaPixels) return;
+
+    try {
+      // Canvas를 사용한 이미지 크롭 로직
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const image = new Image();
+
+      await new Promise((resolve) => {
+        image.onload = resolve;
+        image.src = cropperState.rawImage!;
+      });
+
+      const { croppedAreaPixels } = cropperState;
+      canvas.width = croppedAreaPixels.width;
+      canvas.height = croppedAreaPixels.height;
+
+      ctx?.drawImage(
+        image,
+        croppedAreaPixels.x,
+        croppedAreaPixels.y,
+        croppedAreaPixels.width,
+        croppedAreaPixels.height,
+        0,
+        0,
+        croppedAreaPixels.width,
+        croppedAreaPixels.height
+      );
+
+      // Canvas를 Blob으로 변환 후 FormData 생성
+      const blob = await new Promise<Blob>((resolve) => {
+        canvas.toBlob((blob) => resolve(blob!), 'image/jpeg', 0.8);
+      });
+
+      const formDataForUpload = new FormData();
+      formDataForUpload.append('photo', blob, 'thumbnail.jpg');
+
+      const uploadResponse = await uploadPhoto(formDataForUpload);
+      const imageUrl = uploadResponse.data.url;
+
+      updateFormField('thumbnailUrl', imageUrl);
+      updateCropperState({ open: false, rawImage: null });
+
+    } catch (error) {
+      console.error('썸네일 업로드 실패:', error);
+      alert("썸네일 업로드에 실패했습니다.");
+    }
+  }, [cropperState, updateFormField, updateCropperState]);
+
+  // 게시글 제출 핸들러
+  const handleSubmit = useCallback(async () => {
+    const validationError = validateForm();
+    if (validationError) {
+      alert(validationError);
+      return;
+    }
+
+    const postData: WritePostData = {
+      userId: "test-key",
+      content: formData.editorContent,
+      categoryId: formData.categoryId,
+      photoUrls: formData.thumbnailUrl ? [formData.thumbnailUrl] : [],
+      title: formData.title,
     };
 
     console.log("📤 글 등록 데이터:", postData);
-    console.log("📤 현재 사용자:", currentUser);
 
     try {
-      const res = await writePost(postData);
+      const response = await writePost(postData);
+      console.log("✅ 글 등록 성공:", response);
 
-      console.log("✅ 글 등록 성공:", res);
-      if (res.data && res.data.postId) {
-        // navigate(`/posts/${res.data.postId}`);
+      if (response.data?.postId) {
+        // navigate(`/posts/${response.data.postId}`);
+        alert("게시글이 성공적으로 등록되었습니다!");
+        navigate("/");
       } else {
         alert("등록은 되었으나 postId를 받아오지 못했습니다.");
       }
     } catch (error) {
-      alert("등록에 실패했습니다.");
+      console.error("❌ 글 등록 실패:", error);
+      alert("게시글 등록에 실패했습니다. 다시 시도해주세요.");
     }
-  };
-
-  // 썸네일 파일 선택 시
-  const handleThumbFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setRawImage(reader.result as string);
-        setCropperOpen(true);
-      };
-      reader.readAsDataURL(e.target.files[0]);
-    }
-  };
-
-  // react-easy-crop 콜백
-  const onCropComplete = useCallback((_: any, croppedAreaPixels: any) => {
-    setCroppedAreaPixels(croppedAreaPixels);
-  }, []);
-
-  // canvas에서 crop된 이미지 추출
-  const getCroppedImg = async (imageSrc: string, crop: any) => {
-    const image = new window.Image();
-    image.src = imageSrc;
-    await new Promise((resolve) => {
-      image.onload = resolve;
-    });
-
-    const canvas = document.createElement("canvas");
-    canvas.width = crop.width;
-    canvas.height = crop.height;
-    const ctx = canvas.getContext("2d");
-
-    if (!ctx) return null;
-
-    ctx.drawImage(
-      image,
-      crop.x,
-      crop.y,
-      crop.width,
-      crop.height,
-      0,
-      0,
-      crop.width,
-      crop.height
-    );
-
-    return new Promise<Blob | null>((resolve) => {
-      canvas.toBlob((blob) => {
-        resolve(blob);
-      }, "image/png");
-    });
-  };
-
-  // 자르기 완료 시
-  const handleCrop = async () => {
-    if (!rawImage || !croppedAreaPixels) return;
-    const croppedBlob = await getCroppedImg(rawImage, croppedAreaPixels);
-    if (croppedBlob) {
-      const formData = new FormData();
-      formData.append("files", croppedBlob, "thumbnail.png");
-      try {
-        const res = await uploadPhoto(formData);
-        const url = res.data;
-        console.log("✅ 썸네일 업로드 성공:", url);
-        setThumbnailUrl(url);
-        setCropperOpen(false);
-        setRawImage(null);
-      } catch (err) {
-        alert("썸네일 업로드에 실패했습니다.");
-      }
-    }
-  };
+  }, [formData, validateForm, navigate]);
 
   return (
     <Container>
       <Title>리뷰 작성</Title>
       <InputBox>
         <OptionBox>
-          <Select value={categoryId} onChange={e => setCategoryId(Number(e.target.value))}>
+          <Select 
+            value={formData.categoryId} 
+            onChange={e => updateFormField('categoryId', Number(e.target.value))}
+          >
             <option value="">카테고리</option>
-            {CATEGORIES.map((cat) => (
-              <option key={cat.categoryId} value={cat.categoryId}>
-                {cat.koName}
+            {CATEGORIES.map((category) => (
+              <option key={category.categoryId} value={category.categoryId}>
+                {category.koName}
               </option>
             ))}
           </Select>
           <StarWrapper>
             <span>별점</span>
             {[...Array(5)].map((_, i) => (
-              <StarButton key={i} onClick={() => handleClick(i)}>
+              <StarButton key={i} onClick={() => handleStarClick(i)}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="32"
@@ -163,19 +211,21 @@ const WritePage = () => {
                 >
                   <path
                     d="M16 2L19.09 10.26H28L20.545 15.74L23.635 24L16 18.52L8.365 24L11.455 15.74L4 10.26H12.91L16 2Z"
-                    fill={i < rating ? "#1D1D1D" : "#E2E2E2"}
+                    fill={i < formData.rating ? "#1D1D1D" : "#E2E2E2"}
                   />
                 </svg>
               </StarButton>
             ))}
           </StarWrapper>
         </OptionBox>
+        
         <Input
           type="text"
           placeholder="제목을 입력해주세요."
-          value={title}
-          onChange={e => setTitle(e.target.value)}
+          value={formData.title}
+          onChange={e => updateFormField('title', e.target.value)}
         />
+        
         {/* 대표 썸네일 업로드 */}
         <ThumbBox>
           <ThumbLabel htmlFor="thumbnail-upload">대표 썸네일 업로드</ThumbLabel>
@@ -183,51 +233,60 @@ const WritePage = () => {
             id="thumbnail-upload"
             type="file"
             accept="image/*"
-            onChange={handleThumbFileChange}
+            onChange={handleThumbnailChange}
           />
-          {thumbnailUrl && (
-            <span>✅</span>
+          {formData.thumbnailUrl && (
+            <ThumbPreview>
+              <img src={formData.thumbnailUrl} alt="썸네일 미리보기" />
+            </ThumbPreview>
           )}
         </ThumbBox>
-        {/* Cropper 모달/영역 */}
-        {cropperOpen && rawImage && (
+
+        {/* 크롭퍼 모달 */}
+        {cropperState.open && (
           <CropperModal>
+            <CropperWrapper>
+              <Cropper
+                image={cropperState.rawImage!}
+                crop={cropperState.crop}
+                zoom={cropperState.zoom}
+                aspect={4 / 3}
+                onCropChange={(crop) => updateCropperState({ crop })}
+                onCropComplete={onCropComplete}
+                onZoomChange={(zoom) => updateCropperState({ zoom })}
+              />
+            </CropperWrapper>
             <div>
-              <CropperWrapper>
-                <Cropper
-                  image={rawImage}
-                  crop={crop}
-                  zoom={zoom}
-                  aspect={500 / 393}
-                  onCropChange={setCrop}
-                  onZoomChange={setZoom}
-                  onCropComplete={onCropComplete}
-                  cropShape="rect"
-                  showGrid={false}
-                  zoomWithScroll={false} // 스크롤로 줌 비활성화
-                />
-              </CropperWrapper>
-              {/* 줌 슬라이더 추가 */}
               <ZoomSliderBox>
-                <ZoomLabel>크기 조절</ZoomLabel>
-                <ZoomSlider
+                <input
                   type="range"
-                  value={zoom}
+                  value={cropperState.zoom}
                   min={1}
                   max={5}
                   step={0.1}
-                  onChange={(e) => setZoom(Number(e.target.value))}
+                  onChange={(e) => updateCropperState({ zoom: Number(e.target.value) })}
                 />
               </ZoomSliderBox>
               <CropperButtonBox>
-                <BlackButton type="button" onClick={handleCrop}>자르기 및 업로드</BlackButton>
-                <WhiteButton type="button" onClick={() => setCropperOpen(false)}>취소</WhiteButton>
+                <BlackButton type="button" onClick={handleImageCropAndUpload}>
+                  자르기 및 업로드
+                </BlackButton>
+                <WhiteButton 
+                  type="button" 
+                  onClick={() => updateCropperState({ open: false })}
+                >
+                  취소
+                </WhiteButton>
               </CropperButtonBox>
             </div>
           </CropperModal>
         )}
       </InputBox>
-      <TiptapEditor content={editorContent} onChange={setEditorContent} />
+      
+      <TiptapEditor 
+        content={formData.editorContent} 
+        onChange={(content) => updateFormField('editorContent', content)} 
+      />
 
       <ButtonBox>
         <WhiteButton>불러오기</WhiteButton>
@@ -240,7 +299,7 @@ const WritePage = () => {
 
 export default WritePage;
 
-// 스타일 컴포넌트는 기존 코드와 동일하게 사용
+// 스타일드 컴포넌트
 const Container = styled.div`
   width: 100%;
   max-width: 800px;
@@ -328,41 +387,19 @@ const Input = styled.input`
   }
 `;
 
-const ButtonBox = styled.div`
-  float: right;
-  padding: 40px 0;
-  display: flex;
-  gap: 15px;
-`;
-
-const WhiteButton = styled.button`
-  background-color: #fff;
-  color: #1d1d1d;
-  border: 1px solid #1d1d1d;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-`;
-
-const BlackButton = styled.button`
-  background-color: #1d1d1d;
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-`;
-
 const ThumbBox = styled.div`
-  margin: 20px 0 10px 0;
   display: flex;
   align-items: center;
   gap: 20px;
+  margin: 20px 0;
 `;
 
 const ThumbLabel = styled.label`
-  font-size: 18px;
+  background-color: #1d1d1d;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 16px;
   font-weight: 500;
   cursor: pointer;
 `;
@@ -401,68 +438,52 @@ const CropperWrapper = styled.div`
   height: 393px;
   background: #fff;
   border-radius: 12px 12px 0 0;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   position: relative;
+`;
+
+const ZoomSliderBox = styled.div`
+  width: 500px;
+  background: #fff;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
 `;
 
 const CropperButtonBox = styled.div`
   width: 500px;
   background: #fff;
   border-radius: 0 0 12px 12px;
+  padding: 20px;
   display: flex;
-  gap: 10px;
-  margin-bottom: 0;
-  padding: 16px 0;
+  gap: 20px;
   justify-content: center;
 `;
 
-const ZoomSliderBox = styled.div`
-  width: 100%;
-  max-width: 100%;
-  background: #fff;
-  padding: 16px 20px;
+const ButtonBox = styled.div`
   display: flex;
-  align-items: center;
-  gap: 15px;
-  box-sizing: border-box;
+  justify-content: flex-end;
+  gap: 20px;
+  margin-top: 40px;
 `;
 
-const ZoomLabel = styled.span`
-  font-size: 14px;
+const BlackButton = styled.button`
+  background: #1d1d1d;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
   font-weight: 500;
-  color: #1d1d1d;
-  min-width: 60px;
-  flex-shrink: 0;
+  cursor: pointer;
 `;
 
-const ZoomSlider = styled.input`
-  flex: 1;
-  min-width: 0; /* flex item이 줄어들 수 있도록 */
-  height: 4px;
-  background: #e2e2e2;
-  border-radius: 2px;
-  outline: none;
-  appearance: none;
-  -webkit-appearance: none;
-  
-  &::-webkit-slider-thumb {
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #1d1d1d;
-    cursor: pointer;
-  }
-  
-  &::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #1d1d1d;
-    cursor: pointer;
-    border: none;
-  }
+const WhiteButton = styled.button`
+  background: white;
+  color: #1d1d1d;
+  border: 1px solid #e2e2e2;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
 `;
