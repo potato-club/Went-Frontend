@@ -2,205 +2,216 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { getUserLikes, getUserPosts, getUserProfile } from '../../api/user';
+import { CATEGORIES } from '../../constants/categories';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface Post {
-    postId: number;
-    title: string;
-    likeCount: number;
-    stars: number;
-    thumbnailUrl: string;
-    createdDate: string;
-    viewCount: number;
+  postId: number;
+  title: string;
+  likeCount: number;
+  stars: number;
+  thumbnailUrl: string;
+  createdDate: string;
+  viewCount: number;
 }
 
 interface UserProfile {
-    nickname: string;
-    region: string;
-    profileImageUrl: string;
-    birthDate: string;
-    categories: Array<{
-        id: number;
-        name: string;
-        categoryType: string;
-    }>;
+  nickname: string;
+  region: string;
+  profileImageUrl: string;
+  birthDate: string;
+  categories: Array<{
+    id: number;
+    name: string;
+    categoryType: string;
+  }>;
 }
 
+const categoryMap = new Map(CATEGORIES.map(cat => [cat.name, cat.koName]));
+
 const MyPage = () => {
-    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-    const [myPosts, setMyPosts] = useState<Post[]>([]);
-    const [likedPosts, setLikedPosts] = useState<Post[]>([]);
-    const [loading, setLoading] = useState(true);
-    const { currentUser } = useAuth();
-    const navigate = useNavigate();
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [myPosts, setMyPosts] = useState<Post[]>([]);
+  const [likedPosts, setLikedPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        if (!currentUser?.isLoggedIn) {
-            navigate('/login');
-            return;
-        }
-
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                const [profileData, postsData, likesData] = await Promise.all([
-                    getUserProfile(),
-                    getUserPosts(),
-                    getUserLikes()
-                ]);
-
-                setUserProfile(profileData);
-                setMyPosts(postsData);
-                setLikedPosts(likesData);
-                console.log('내 정보:', profileData);
-                console.log('내 게시물:', postsData);
-                console.log('좋아요한 게시물:', likesData);
-            } catch (error) {
-                console.error('데이터 로딩 실패:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [currentUser, navigate]);
-
-    const handleEditProfile = () => {
-        navigate('/edit-profile');
-    };
-
-    const renderStars = (rating: number) => {
-        return (
-            <StarWrapper>
-                {Array.from({ length: 5 }, (_, index) => (
-                    <Star key={index} filled={index < rating}>
-                        ★
-                    </Star>
-                ))}
-            </StarWrapper>
-        );
-    };
-
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('ko-KR', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-        }).replace(/ /g, '');
-    };
-
-    if (loading) {
-        return <LoadingContainer>로딩 중...</LoadingContainer>;
+  useEffect(() => {
+    if (!currentUser?.isLoggedIn) {
+      navigate('/login');
+      return;
     }
 
-    if (!userProfile) {
-        return <ErrorContainer>프로필을 불러올 수 없습니다.</ErrorContainer>;
-    }
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [profileData, postsData, likesData] = await Promise.all([
+          getUserProfile(),
+          getUserPosts(),
+          getUserLikes()
+        ]);
 
+        setUserProfile(profileData);
+        setMyPosts(postsData);
+        setLikedPosts(likesData);
+        console.log('내 정보:', profileData);
+        console.log('내 게시물:', postsData);
+        console.log('좋아요한 게시물:', likesData);
+      } catch (error) {
+        console.error('데이터 로딩 실패:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [currentUser, navigate]);
+
+  const handleEditProfile = () => {
+    navigate('/edit-profile');
+  };
+
+  const renderStars = (rating: number) => {
     return (
-        <Container>
-            <MainLayout>
-                <LeftSidebar>
-                    <ProfileSection>
-                        <EditButton onClick={handleEditProfile}>
-                            <img src="/edit.svg" alt="프로필 수정" />
-                        </EditButton>
-
-                        <ProfileImage>
-                            {userProfile.profileImageUrl ? (
-                                <img src={userProfile.profileImageUrl} alt="프로필" />
-                            ) : (
-                                <DefaultProfile />
-                            )}
-
-                        </ProfileImage>
-
-                        <ProfileInfo>
-                            <Nickname>{userProfile.nickname}</Nickname>
-                            <InfoRow>
-                                <InfoLabel>사는 지역</InfoLabel>
-                                <InfoValue>{userProfile.region}</InfoValue>
-                            </InfoRow>
-                            <InfoRow>
-                                <InfoLabel>생년월일</InfoLabel>
-                                <InfoValue>{formatDate(userProfile.birthDate)}</InfoValue>
-                            </InfoRow>
-                            <InfoRow>
-                                <InfoLabel>선호 카테고리</InfoLabel>
-                                <InfoValue>{userProfile.categories.map(cat => cat.name).join(', ')}</InfoValue>
-                            </InfoRow>
-                        </ProfileInfo>
-                    </ProfileSection>
-                </LeftSidebar>
-
-                <RightContent>
-                    <Section>
-                        <SectionHeader>
-                            <SectionTitle>좋아요</SectionTitle>
-                            <MoreButton>더보기 +</MoreButton>
-                        </SectionHeader>
-                        <PostGrid>
-                            {likedPosts.slice(0, 4).map((post) => (
-                                <PostCard key={post.postId}>
-                                    <PostImage>
-                                        {post.thumbnailUrl ? (
-                                            <img src={post.thumbnailUrl} alt={post.title} />
-                                        ) : (
-                                            <DefaultImage />
-                                        )}
-                                    </PostImage>
-                                    <PostInfo>
-                                        <PostTitle>{post.title}</PostTitle>
-                                        <PostStats>
-                                            {renderStars(post.stars)}
-                                            <StatsRow>
-                                                <StatsText><svg xmlns="http://www.w3.org/2000/svg" width="12" height="11" viewBox="0 0 12 11" fill="none">
-                                                    <path d="M5.85139 2.81297C4.74889 0.218685 0.890137 0.495 0.890137 3.81079C0.890137 7.12659 5.85139 9.88982 5.85139 9.88982C5.85139 9.88982 10.8126 7.12659 10.8126 3.81079C10.8126 0.495 6.95389 0.218685 5.85139 2.81297Z" stroke="#C6C6C6" stroke-width="1.26" stroke-linecap="round" stroke-linejoin="round" />
-                                                </svg> {post.likeCount}</StatsText>
-                                                <StatsDate>{formatDate(post.createdDate)}</StatsDate>
-                                            </StatsRow>
-                                        </PostStats>
-                                    </PostInfo>
-                                </PostCard>
-                            ))}
-                        </PostGrid>
-                    </Section>
-
-                    <Section>
-                        <SectionHeader>
-                            <SectionTitle>내 게시물</SectionTitle>
-                            <MoreButton>더보기 +</MoreButton>
-                        </SectionHeader>
-                        <PostGrid>
-                            {myPosts.slice(0, 2).map((post) => (
-                                <PostCard key={post.postId}>
-                                    <PostImage>
-                                        {post.thumbnailUrl ? (
-                                            <img src={post.thumbnailUrl} alt={post.title} />
-                                        ) : (
-                                            <DefaultImage />
-                                        )}
-                                    </PostImage>
-                                    <PostInfo>
-                                        <PostTitle>{post.title}</PostTitle>
-                                        <PostStats>
-                                            {renderStars(post.stars)}
-                                            <StatsRow>
-                                                <StatsText><svg xmlns="http://www.w3.org/2000/svg" width="12" height="11" viewBox="0 0 12 11" fill="none">
-                                                    <path d="M5.85139 2.81297C4.74889 0.218685 0.890137 0.495 0.890137 3.81079C0.890137 7.12659 5.85139 9.88982 5.85139 9.88982C5.85139 9.88982 10.8126 7.12659 10.8126 3.81079C10.8126 0.495 6.95389 0.218685 5.85139 2.81297Z" stroke="#C6C6C6" stroke-width="1.26" stroke-linecap="round" stroke-linejoin="round" />
-                                                </svg> {post.likeCount}</StatsText>
-                                                <StatsDate>{formatDate(post.createdDate)}</StatsDate>
-                                            </StatsRow>
-                                        </PostStats>
-                                    </PostInfo>
-                                </PostCard>
-                            ))}
-                        </PostGrid>
-                    </Section>
-                </RightContent>
-            </MainLayout>
-        </Container>
+      <StarWrapper>
+        {Array.from({ length: 5 }, (_, index) => (
+          <Star key={index} filled={index < rating}>
+            ★
+          </Star>
+        ))}
+      </StarWrapper>
     );
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).replace(/ /g, '');
+  };
+
+  if (loading) {
+    return <LoadingContainer>로딩 중...</LoadingContainer>;
+  }
+
+  if (!userProfile) {
+    return <ErrorContainer>프로필을 불러올 수 없습니다.</ErrorContainer>;
+  }
+
+  return (
+    <Container>
+      <MainLayout>
+        <LeftSidebar>
+          <ProfileSection>
+            <EditButton onClick={handleEditProfile}>
+              <img src="/edit.svg" alt="프로필 수정" />
+            </EditButton>
+
+            <ProfileImage>
+              {userProfile.profileImageUrl ? (
+                <img src={userProfile.profileImageUrl} alt="프로필" />
+              ) : (
+                <DefaultProfile />
+              )}
+
+            </ProfileImage>
+
+            <ProfileInfo>
+              <Nickname>{userProfile.nickname}</Nickname>
+              <InfoRow>
+                <InfoLabel>사는 지역</InfoLabel>
+                <InfoValue>{userProfile.region.split(" ")[0]}</InfoValue>
+              </InfoRow>
+              <InfoRow>
+                <InfoLabel>생년월일</InfoLabel>
+                <InfoValue>{formatDate(userProfile.birthDate)}</InfoValue>
+              </InfoRow>
+              <InfoRow>
+                <InfoLabel>선호 카테고리</InfoLabel>
+                <InfoValue>
+                  <BadgeContainer>
+                    {userProfile.categories.map(cat => (
+                      <Badge key={cat.id}>
+                        {categoryMap.get(cat.name) || cat.name}
+                      </Badge>
+                    ))}
+                  </BadgeContainer>
+                </InfoValue>
+              </InfoRow>
+            </ProfileInfo>
+          </ProfileSection>
+        </LeftSidebar>
+
+        <RightContent>
+          <Section>
+            <SectionHeader>
+              <SectionTitle>좋아요</SectionTitle>
+              <MoreButton>더보기 +</MoreButton>
+            </SectionHeader>
+            <PostGrid>
+              {likedPosts.slice(0, 4).map((post) => (
+                <PostCard key={post.postId}>
+                  <PostImage>
+                    {post.thumbnailUrl ? (
+                      <img src={post.thumbnailUrl} alt={post.title} />
+                    ) : (
+                      <DefaultImage />
+                    )}
+                  </PostImage>
+                  <PostInfo>
+                    <PostTitle>{post.title}</PostTitle>
+                    <PostStats>
+                      {renderStars(post.stars)}
+                      <StatsRow>
+                        <StatsText><svg xmlns="http://www.w3.org/2000/svg" width="12" height="11" viewBox="0 0 12 11" fill="none">
+                          <path d="M5.85139 2.81297C4.74889 0.218685 0.890137 0.495 0.890137 3.81079C0.890137 7.12659 5.85139 9.88982 5.85139 9.88982C5.85139 9.88982 10.8126 7.12659 10.8126 3.81079C10.8126 0.495 6.95389 0.218685 5.85139 2.81297Z" stroke="#C6C6C6" stroke-width="1.26" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg> {post.likeCount}</StatsText>
+                        <StatsDate>{formatDate(post.createdDate)}</StatsDate>
+                      </StatsRow>
+                    </PostStats>
+                  </PostInfo>
+                </PostCard>
+              ))}
+            </PostGrid>
+          </Section>
+
+          <Section>
+            <SectionHeader>
+              <SectionTitle>내 게시물</SectionTitle>
+              <MoreButton>더보기 +</MoreButton>
+            </SectionHeader>
+            <PostGrid>
+              {myPosts.slice(0, 2).map((post) => (
+                <PostCard key={post.postId}>
+                  <PostImage>
+                    {post.thumbnailUrl ? (
+                      <img src={post.thumbnailUrl} alt={post.title} />
+                    ) : (
+                      <DefaultImage />
+                    )}
+                  </PostImage>
+                  <PostInfo>
+                    <PostTitle>{post.title}</PostTitle>
+                    <PostStats>
+                      {renderStars(post.stars)}
+                      <StatsRow>
+                        <StatsText><svg xmlns="http://www.w3.org/2000/svg" width="12" height="11" viewBox="0 0 12 11" fill="none">
+                          <path d="M5.85139 2.81297C4.74889 0.218685 0.890137 0.495 0.890137 3.81079C0.890137 7.12659 5.85139 9.88982 5.85139 9.88982C5.85139 9.88982 10.8126 7.12659 10.8126 3.81079C10.8126 0.495 6.95389 0.218685 5.85139 2.81297Z" stroke="#C6C6C6" stroke-width="1.26" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg> {post.likeCount}</StatsText>
+                        <StatsDate>{formatDate(post.createdDate)}</StatsDate>
+                      </StatsRow>
+                    </PostStats>
+                  </PostInfo>
+                </PostCard>
+              ))}
+            </PostGrid>
+          </Section>
+        </RightContent>
+      </MainLayout>
+    </Container>
+  );
 };
 
 export default MyPage;
@@ -262,7 +273,7 @@ const ProfileSection = styled.div`
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 60px 60px;
+  padding: 60px 40px;
   background: white;
   border-radius: 12px;
   border: 1px solid #E2E2E2;
@@ -320,13 +331,12 @@ const Nickname = styled.h1`
   line-height: 140%; /* 33.6px */
   color: #1d1d1d;
   text-align: center;
-  margin-bottom: 100px;
+  margin-bottom: 50px;
 `;
 
 const InfoRow = styled.div`
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   width: 100%;
   margin-bottom: 30px;
   
@@ -339,14 +349,32 @@ const InfoLabel = styled.span`
   font-size: 16px;
   color: #C6C6C6;
   font-weight: 500;
+  width: 110px;
   flex-shrink: 0;
+  text-align: left;
 `;
 
 const InfoValue = styled.span`
   font-size: 16px;
   color: #1d1d1d;
   font-weight: 400;
-  text-align: right;
+  text-align: left;
+`;
+
+const BadgeContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+`;
+
+const Badge = styled.span`
+  color: #333;
+  padding: 9px 13px;
+  border: 1px solid #E2E2E2;
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 500;
 `;
 
 const Section = styled.div`
