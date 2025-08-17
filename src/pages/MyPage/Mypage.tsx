@@ -34,6 +34,8 @@ const MyPage = () => {
   const [myPosts, setMyPosts] = useState<Post[]>([]);
   const [likedPosts, setLikedPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isMyPostsModalOpen, setMyPostsModalOpen] = useState(false);
+  const [isLikedPostsModalOpen, setLikedPostsModalOpen] = useState(false);
   const { currentUser } = useAuth();
   const navigate = useNavigate();
 
@@ -148,7 +150,7 @@ const MyPage = () => {
           <Section>
             <SectionHeader>
               <SectionTitle>좋아요</SectionTitle>
-              <MoreButton>더보기 +</MoreButton>
+              <MoreButton onClick={() => setLikedPostsModalOpen(true)}>더보기 +</MoreButton>
             </SectionHeader>
             <PostGrid>
               {likedPosts.slice(0, 4).map((post) => (
@@ -180,10 +182,10 @@ const MyPage = () => {
           <Section>
             <SectionHeader>
               <SectionTitle>내 게시물</SectionTitle>
-              <MoreButton>더보기 +</MoreButton>
+              <MoreButton onClick={() => setMyPostsModalOpen(true)}>더보기 +</MoreButton>
             </SectionHeader>
             <PostGrid>
-              {myPosts.slice(0, 2).map((post) => (
+              {myPosts.slice(0, 4).map((post) => (
                 <PostCard key={post.postId}>
                   <PostImage>
                     {post.thumbnailUrl ? (
@@ -210,11 +212,152 @@ const MyPage = () => {
           </Section>
         </RightContent>
       </MainLayout>
+
+      {/* 내 게시물 모달 */}
+      {isMyPostsModalOpen && (
+        <ModalBackdrop onClick={() => setMyPostsModalOpen(false)}>
+          <ModalContent onClick={(e) => e.stopPropagation()}>
+            <ModalHeader>
+              <h2>내 게시물 전체</h2>
+              <CloseButton onClick={() => setMyPostsModalOpen(false)}>&times;</CloseButton>
+            </ModalHeader>
+            <ModalPostList>
+              {myPosts.map((post) => (
+                <ModalPostItem key={post.postId}>
+                  <ModalPostImage>
+                    {post.thumbnailUrl ? (
+                      <img src={post.thumbnailUrl} alt={post.title} />
+                    ) : (
+                      <DefaultImage />
+                    )}
+                  </ModalPostImage>
+                  <ModalPostTitle>{post.title}</ModalPostTitle>
+                </ModalPostItem>
+              ))}
+            </ModalPostList>
+          </ModalContent>
+        </ModalBackdrop>
+      )}
+
+      {/* 좋아요 게시물 모달 */}
+      {isLikedPostsModalOpen && (
+        <ModalBackdrop onClick={() => setLikedPostsModalOpen(false)}>
+          <ModalContent onClick={(e) => e.stopPropagation()}>
+            <ModalHeader>
+              <h2>좋아요한 게시물 전체</h2>
+              <CloseButton onClick={() => setLikedPostsModalOpen(false)}>&times;</CloseButton>
+            </ModalHeader>
+            <ModalPostList>
+              {likedPosts.map((post) => (
+                <ModalPostItem key={post.postId}>
+                  <ModalPostImage>
+                    {post.thumbnailUrl ? (
+                      <img src={post.thumbnailUrl} alt={post.title} />
+                    ) : (
+                      <DefaultImage />
+                    )}
+                  </ModalPostImage>
+                  <ModalPostTitle>{post.title}</ModalPostTitle>
+                </ModalPostItem>
+              ))}
+            </ModalPostList>
+          </ModalContent>
+        </ModalBackdrop>
+      )}
     </Container>
   );
 };
 
 export default MyPage;
+
+const ModalBackdrop = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+const ModalContent = styled.div`
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  width: 600px;
+  height: 600px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+`;
+
+const ModalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+  }
+`;
+
+const CloseButton = styled.button`
+  background: transparent;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #888;
+  &:hover {
+    color: #333;
+  }
+`;
+
+const ModalPostList = styled.div`
+  overflow-y: auto;
+  padding-right: 15px; 
+  margin-right: -15px;
+`;
+
+const ModalPostItem = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eee;
+
+  &:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+`;
+
+const ModalPostImage = styled.div`
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  margin-right: 20px;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+`;
+
+const ModalPostTitle = styled.h3`
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+`;
+
 
 const Container = styled.div`
   min-width: 1350px;
@@ -412,7 +555,7 @@ const MoreButton = styled.button`
 const PostGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, 210px);
-  gap: 16px;
+  gap: 32px;
   justify-content: start;
   
   @media (max-width: 768px) {
