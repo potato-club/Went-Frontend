@@ -68,6 +68,24 @@ export const logout = () => {
   tokenStorage.clearTokens();
 };
 
+// 회원탈퇴 API
+export const deleteUser = async () => {
+  const response = await axios.delete('/api/users');
+  return response.data;
+};
+
+// 내가 작성한 게시글 목록 조회 API
+export const getUserPosts = async () => {
+  const response = await axios.get('/api/users/me/posts');
+  return response.data;
+};
+
+// 내가 좋아요 누른 게시글 목록 조회 API
+export const getUserLikes = async () => {
+  const response = await axios.get('/api/users/me/likes');
+  return response.data;
+};
+
 export const googleLogin = async (idToken: string) => {
   const response = await axios.post("/api/oauth/google", { idToken });
 

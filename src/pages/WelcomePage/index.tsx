@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import WentImg from "../../asset/WentLogo.png";
@@ -11,9 +12,15 @@ function WelcomePage() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
 
-  const goToMainPage = () => {
+  const goToMainPage = useCallback(() => {
     navigate("/");
-  };
+  }, [navigate]);
+
+  const getUserDisplayName = useCallback((): string => {
+    return currentUser.nickname ||
+      sessionStorage.getItem('nickname') ||
+      '사용자';
+  }, [currentUser.nickname]);
 
   console.log("WelcomePage - currentUser:", currentUser);
   console.log("WelcomePage - nickname:", currentUser.nickname);
@@ -24,7 +31,7 @@ function WelcomePage() {
       <WelcomePageContent>
         <Title>(), 다녀왔습니다.</Title>
         <SubTitle>
-          <div>{currentUser.nickname || '사용자'} 님,</div>
+          <div>{getUserDisplayName()} 님,</div>
           <div>회원가입을 환영합니다! 🎉</div>
         </SubTitle>
 
@@ -53,58 +60,26 @@ const WelcomePageWrapper = styled.div`
 const WelcomePageContent = styled.div`
   width: 400px;
   min-height: 750px;
-
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-
   text-align: center;
 `;
 
 const SubTitle = styled.div`
   margin: 65px 0 50px 0;
   font-size: 35px;
-
   text-align: center;
-
   color: var(--gray-900, #1d1d1d);
   text-align: center;
   font-family: "pretendard";
   font-size: 32px;
   font-style: normal;
   font-weight: 600;
-  line-height: 145%; /* 46.4px */
+  line-height: 145%;
   letter-spacing: -0.8px;
 `;
-
-const DescriptionBox = styled.div`
-  width: 100%;
-  height: 40px;
-  border-bottom: 3px solid #c6c4c2;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  font-size: 20px;
-  padding-bottom: 10px;
-  white-space: pre-wrap;
-`;
-
-
-const LoginPageWrapper = styled.div`
-  width: 400px;
-  /* height: 830px; */
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 0 auto;
-  justify-content: center;
-  margin-top: 20px;
-  overflow: hidden; /* 스크롤바 숨기기 */
-`;
-
-
 
 const Img = styled.img``;
 
