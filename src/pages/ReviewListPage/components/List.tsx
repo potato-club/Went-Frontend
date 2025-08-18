@@ -1,39 +1,28 @@
 import React from "react";
 import styled from "styled-components";
 import { AiFillStar, AiOutlineStar, AiOutlineHeart } from "react-icons/ai";
+import type { Review } from "../../../types/review"; 
 
-type Review = {
-  id: number;
-  title: string;
-  place: string;
-  rating: number;
-  likes: number;
-  date: string;
-  thumbnail?: string; 
-};
 
-const dummyData: Review[] = [
-  { id: 1, title: "가격 대비 괜찮은 듯?", place: "한세대 학교 학생식당", rating: 3, likes: 24, date: "2025.03.24"},
-  { id: 2, title: "제목", place: "가보거나 해본 것", rating: 5, likes: 156, date: "2025.02.01" },
-  { id: 3, title: "가나다", place: "라마리사", rating: 1, likes: 0, date: "2025.03.24" },
-  { id: 4, title: "가격 대비 괜찮은 듯?", place: "한세대 학교 학생식당", rating: 2, likes: 4, date: "2025.03.24" },
-  { id: 5, title: "가격 대비 괜찮은 듯?", place: "한세대 학교 학생식당", rating: 5, likes: 1, date: "2025.03.24" },
-  { id: 6, title: "ㅇㅇㅇㅇ", place: "ㅇㅇㅇ", rating: 5, likes: 0, date: "2025.03.24" },
-  { id: 7, title: "가격 대비 괜찮은 듯?", place: "한세대 학교 학생식당", rating: 2, likes: 4, date: "2025.03.24" },
-  { id: 8, title: "가나다", place: "라마리사", rating: 1, likes: 0, date: "2025.03.24" },
-];
-  
-const List: React.FC = () => {
+interface ListProps {
+  data: Review[];
+}
+
+const List: React.FC<ListProps> = ({ data }) => {
+  if (!data || data.length === 0) {
+    return <EmptyMessage>리뷰가 없습니다.</EmptyMessage>;
+  }
+
   return (
     <Container>
-      {dummyData.map((review) => (
-        <Card key={review.id}>
+      {data.map((review) => (
+        <Card key={review.postId}>
           <TextContent>
             <Title>{review.title}</Title>
-            <Place>{review.place}</Place>
+            <Place>{review.content}</Place>
             <Rating>
               {Array.from({ length: 5 }, (_, i) =>
-                i < review.rating ? (
+                i < review.stars ? (
                   <AiFillStar key={i} color="#000000" />
                 ) : (
                   <AiOutlineStar key={i} color="#000000" />
@@ -41,11 +30,19 @@ const List: React.FC = () => {
               )}
             </Rating>
             <Meta>
-              <Likes><AiOutlineHeart /> {review.likes}</Likes>
-              <Date>{review.date}</Date>
+              <Likes>
+                <AiOutlineHeart /> {review.commentCount || '15'}
+              </Likes>
+              <Date>{review.createdAt || '2025.10.10'}</Date>
             </Meta>
           </TextContent>
-          <Thumbnail />
+          <Thumbnail
+            style={{
+              backgroundImage: `url(${review.thumbnailUrl || ""})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          />
         </Card>
       ))}
     </Container>
@@ -69,12 +66,14 @@ const Card = styled.div`
   border-radius: 8px;
   background: #fff;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.05);
+  max-width: 401px;
 `;
 
 const TextContent = styled.div`
   display: flex;
   flex-direction: column;
   gap: 6px;
+  max-width: calc(100% - 100px);
 `;
 
 const Title = styled.div`
@@ -85,6 +84,9 @@ const Title = styled.div`
 const Place = styled.div`
   font-size: 14px;
   color: #555;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const Rating = styled.div`
@@ -116,4 +118,12 @@ const Thumbnail = styled.div`
   background: #d9d9d9;
   border-radius: 6px;
   flex-shrink: 0;
+`;
+
+const EmptyMessage = styled.div`
+  text-align: center;
+  width: 100%;
+  padding: 40px 0;
+  font-size: 18px;
+  color: #777;
 `;
