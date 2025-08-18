@@ -4,7 +4,12 @@ import styled from "styled-components";
 type CategoryType = "movie" | "place" | "book" | "music" | "performance";
 type SortOrderType = "" | "latest" | "likes" | "popular";
 
-const Header: React.FC = () => {
+type HeaderProps = {
+  onCategoryChange: (value: CategoryType) => void;
+  onSortChange: (value: SortOrderType) => void;
+};
+
+const Header: React.FC<HeaderProps> = ({ onCategoryChange, onSortChange }) => {
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [category, setCategory] = useState<CategoryType>("movie");
@@ -57,7 +62,10 @@ const Header: React.FC = () => {
 
   return (
     <Layout>
-      <DropdownWrapper ref={categoryRef} onClick={() => setShowCategoryDropdown((prev) => !prev)}>
+      <DropdownWrapper
+        ref={categoryRef}
+        onClick={() => setShowCategoryDropdown((prev) => !prev)}
+      >
         <p>{getLabel(category, categoryOptions)}</p>
         {showCategoryDropdown && (
           <Dropdown>
@@ -67,6 +75,7 @@ const Header: React.FC = () => {
                 onClick={(e) => {
                   e.stopPropagation();
                   setCategory(opt.value);
+                  onCategoryChange(opt.value);
                   setShowCategoryDropdown(false);
                 }}
               >
@@ -76,7 +85,6 @@ const Header: React.FC = () => {
           </Dropdown>
         )}
       </DropdownWrapper>
-
       <SortWrapper ref={sortRef}>
         <button onClick={() => setShowSortDropdown((prev) => !prev)}>
           {getLabel(sortOrder, sortOptions) || "정렬"}
@@ -88,6 +96,7 @@ const Header: React.FC = () => {
                 key={opt.value}
                 onClick={() => {
                   setSortOrder(opt.value);
+                  onSortChange(opt.value);
                   setShowSortDropdown(false);
                 }}
               >
@@ -133,7 +142,7 @@ const SortWrapper = styled.div`
   position: relative;
 
   button {
-    background: #D9D9D9;
+    background: #d9d9d9;
     border: none;
     font-size: 16px;
     font-weight: 500;
@@ -149,7 +158,7 @@ const Dropdown = styled.ul`
   top: 110%;
   left: 0;
   margin-top: 4px;
-  padding:  0;
+  padding: 0;
   background: #ffffff;
   border: 1px solid #ddd;
   border-radius: 6px;
